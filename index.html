@@ -137,6 +137,10 @@ h2::before {
   border-bottom: 3px solid var(--red); transform: rotate(-45deg);
 }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.signup { border: 2px dashed var(--blue); border-radius: 8px; padding: 10px 14px; background: var(--blue-soft); }
+.signup strong { display: block; font-family: var(--display); font-weight: 800; font-style: italic; text-transform: uppercase; letter-spacing: .04em; color: var(--blue); font-size: 1rem; }
+.signup p { margin: 2px 0 0; font-weight: 600; }
+.signup .email { user-select: all; font-weight: 800; overflow-wrap: anywhere; }
 .chip { font-size: .85rem; font-weight: 600; border: 1px solid var(--line); border-radius: 999px; padding: 3px 11px; color: var(--muted); }
 
 /* Upcoming list */
@@ -272,6 +276,10 @@ footer .contact span { user-select: all; }
               <span class="chip">Games</span>
               <span class="chip">Movie</span>
               <span class="chip">Fruit &amp; snacks</span>
+            </div>
+            <div class="signup">
+              <strong>Sign up required</strong>
+              <p>Sign up at the front desk, or email us at <span class="email">info@amatkdo.com</span>.</p>
             </div>
           </div>
         </article>
