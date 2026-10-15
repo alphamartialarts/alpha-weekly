@@ -165,6 +165,12 @@ h2::before {
 .wk.cur b { color: var(--red); }
 .wk.next { border: 2px solid var(--blue); }
 .wk.next b { color: var(--blue); }
+.track { display: grid; gap: 10px; min-width: 0; }
+.track-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+.track h3 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2; }
+.track .len { font-family: var(--display); font-weight: 700; font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.wk.test span { color: var(--red); }
+.skipnote { margin: 0; padding: 9px 12px; border-radius: 6px; background: var(--red-soft); font-weight: 700; font-size: .92rem; }
 .legend { font-size: .86rem; color: var(--muted); margin: 0; }
 .legend abbr { text-decoration: none; font-weight: 800; color: var(--ink); }
 
@@ -295,16 +301,46 @@ footer .contact span { user-select: all; }
 
     <section aria-labelledby="h-next">
       <h2 id="h-next">Training Focus</h2>
-      <p class="lede">Classes follow an 8-week cycle that ends with belt testing.</p>
-      <div class="cycle" id="cycle" aria-label="8-week curriculum cycle">
-        <div class="wk"><b>Week 1</b><span>One Step Sparring &amp; Sparring</span></div>
-        <div class="wk"><b>Week 2</b><span>Hand Technique &amp; Self Defense</span></div>
-        <div class="wk"><b>Week 3</b><span>Poomsae &amp; Target Drill</span></div>
-        <div class="wk"><b>Week 4</b><span>One Step Sparring &amp; Sparring</span></div>
-        <div class="wk"><b>Week 5</b><span>Hand Technique &amp; Self Defense</span></div>
-        <div class="wk"><b>Week 6</b><span>Poomsae &amp; Target Drill</span></div>
-        <div class="wk"><b>Week 7</b><span>Falling Technique</span></div>
-        <div class="wk"><b>Week 8</b><span>Review &amp; Belt Testing</span></div>
+      <p class="lede">Each class group follows its own cycle, ending with review and belt testing. Thanksgiving week (Nov 23–29) is skipped.</p>
+
+      <div class="track">
+        <div class="track-head">
+          <h3>Little Alpha · Alpha Warrior · Intermediate</h3>
+          <span class="len">8-week cycle</span>
+        </div>
+        <p class="skipnote" hidden>Thanksgiving week: no curriculum this week. The cycle continues next week.</p>
+        <div class="cycle" id="cycle" data-anchor="2026-10-19" data-anchor-week="1" aria-label="8-week curriculum cycle">
+          <div class="wk"><b>Week 1</b><span>One Step Sparring &amp; Sparring</span></div>
+          <div class="wk"><b>Week 2</b><span>Hand Technique &amp; Self Defense</span></div>
+          <div class="wk"><b>Week 3</b><span>Poomsae &amp; Target Drill</span></div>
+          <div class="wk"><b>Week 4</b><span>One Step Sparring &amp; Sparring</span></div>
+          <div class="wk"><b>Week 5</b><span>Hand Technique &amp; Self Defense</span></div>
+          <div class="wk"><b>Week 6</b><span>Poomsae &amp; Target Drill</span></div>
+          <div class="wk"><b>Week 7</b><span>Falling Technique</span></div>
+          <div class="wk test"><b>Week 8</b><span>Review &amp; Belt Testing</span></div>
+        </div>
+      </div>
+
+      <div class="track">
+        <div class="track-head">
+          <h3>Advanced</h3>
+          <span class="len">12-week cycle</span>
+        </div>
+        <p class="skipnote" hidden>Thanksgiving week: no curriculum this week. The cycle continues next week.</p>
+        <div class="cycle" id="cycle-adv" data-anchor="2026-10-19" data-anchor-week="5" aria-label="12-week Advanced curriculum cycle">
+          <div class="wk"><b>Week 1</b><span>One Step Sparring &amp; Sparring</span></div>
+          <div class="wk"><b>Week 2</b><span>Hand Technique &amp; Self Defense</span></div>
+          <div class="wk"><b>Week 3</b><span>Poomsae &amp; Target Drill</span></div>
+          <div class="wk"><b>Week 4</b><span>One Step Sparring &amp; Sparring</span></div>
+          <div class="wk"><b>Week 5</b><span>Hand Technique &amp; Self Defense</span></div>
+          <div class="wk"><b>Week 6</b><span>Poomsae &amp; Target Drill</span></div>
+          <div class="wk"><b>Week 7</b><span>Falling Technique</span></div>
+          <div class="wk"><b>Week 8</b><span>Review</span></div>
+          <div class="wk"><b>Week 9</b><span>One Step Sparring &amp; Sparring</span></div>
+          <div class="wk"><b>Week 10</b><span>Hand Technique &amp; Self Defense</span></div>
+          <div class="wk"><b>Week 11</b><span>Poomsae &amp; Target Drill</span></div>
+          <div class="wk test"><b>Week 12</b><span>Review &amp; Belt Testing</span></div>
+        </div>
       </div>
       <p class="legend"><abbr>O.S.S</abbr> One Step Sparring · <abbr>H.T</abbr> Hand Technique · <abbr>S.D</abbr> Self Defense · <abbr>T.D</abbr> Target Drill</p>
     </section>
@@ -477,15 +513,36 @@ function refreshDates() {
     u.classList.toggle('past', n < 0);
   });
 
-  // Curriculum: Week 1 of the new cycle starts Mon Oct 19, 2026
-  var idx = ((Math.floor((t - dayNum('2026-10-19')) / 7) % 8) + 8) % 8;
-  Array.prototype.forEach.call(document.querySelectorAll('#cycle .wk'), function (w, i) {
-    var b = w.querySelector('b');
-    var on = i === idx, nx = i === (idx + 1) % 8;
-    w.classList.toggle('cur', on);
-    w.classList.toggle('next', nx);
-    b.textContent = 'Week ' + (i + 1) + (on ? ' · This Week' : nx ? ' · Next' : '');
+  // Curriculum cycles. Each cycle has an anchor Monday and the week number on that Monday.
+  Array.prototype.forEach.call(document.querySelectorAll('.cycle[data-anchor]'), function (cy) {
+    var weeks = cy.querySelectorAll('.wk');
+    var st = cycleState(t, dayNum(cy.dataset.anchor), +cy.dataset.anchorWeek - 1, weeks.length);
+    var note = cy.parentNode.querySelector('.skipnote');
+    if (note) note.hidden = !st.skip;
+    Array.prototype.forEach.call(weeks, function (w, i) {
+      var on = i === st.cur, nx = i === st.next;
+      w.classList.toggle('cur', on);
+      w.classList.toggle('next', nx);
+      w.querySelector('b').textContent = 'Week ' + (i + 1) + (on ? ' · This Week' : nx ? ' · Next' : '');
+    });
   });
+}
+
+// Mondays of weeks with no curriculum (Thanksgiving)
+var SKIP_WEEKS = ['2026-11-23'].map(dayNum);
+
+function cycleState(t, anchor, anchorIdx, len) {
+  function mondayOf(day) { var dow = new Date(day * 864e5).getUTCDay(); return day - ((dow + 6) % 7); }
+  function idxFor(monday) {
+    var w = Math.round((monday - anchor) / 7);
+    var skipped = SKIP_WEEKS.filter(function (s) { return s >= anchor && s < monday; }).length;
+    return (((anchorIdx + w - skipped) % len) + len) % len;
+  }
+  var mon = mondayOf(t);
+  if (SKIP_WEEKS.indexOf(mon) !== -1) return { skip: true, cur: -1, next: idxFor(mon + 7) };
+  var nextMon = mon + 7;
+  while (SKIP_WEEKS.indexOf(nextMon) !== -1) nextMon += 7;
+  return { skip: false, cur: idxFor(mon), next: idxFor(nextMon) };
 }
 refreshDates();
 setInterval(refreshDates, 10 * 60 * 1000);
