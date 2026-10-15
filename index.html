@@ -235,8 +235,13 @@ footer .contact span { user-select: all; }
   <div class="wrap">
 
     <section aria-labelledby="h-week">
-      <h2 id="h-week">This Week at Alpha</h2>
-      <p class="lede">A big week: color belt testing, Trunk or Treat, a tournament, and Parents’ Night Out Plus.</p>
+      <h2 id="h-week">This Week &amp; Next Week</h2>
+      <p class="lede">Color belt testing, Trunk or Treat, a tournament, Parents’ Night Out Plus, and Kidz Town Hay Day.</p>
+
+      <div class="change" data-until="2026-10-24">
+        <strong>No Saturday Beast or Beginner’s classes · Oct 17 &amp; Oct 24</strong>
+        <p>Saturday Beast Class and Beginner’s Class are cancelled on <b>Oct 17</b> (Silicon Valley Taekwondo Championship) and <b>Oct 24</b> (Kidz Town Hay Day).</p>
+      </div>
 
       <div class="events">
         <article class="event feature" data-start="2026-10-14" data-end="2026-10-15">
@@ -273,6 +278,10 @@ footer .contact span { user-select: all; }
             <div class="tags"><span class="tag status" hidden></span><span class="tag">Competition</span></div>
             <h3>Silicon Valley Taekwondo Championship</h3>
             <p>Our Poomsae Team competes this Saturday. Cheer them on and wish them luck!</p>
+            <div class="change">
+              <strong>No Saturday Beast or Beginner’s class</strong>
+              <p>Saturday Beast Class and Beginner’s Class will not meet on Oct 17.</p>
+            </div>
           </div>
         </article>
 
@@ -293,6 +302,20 @@ footer .contact span { user-select: all; }
             <div class="signup">
               <strong>Sign up required</strong>
               <p>Sign up at the front desk, or email us at <span class="email">info@amatkdo.com</span>.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="event" data-start="2026-10-24" data-end="2026-10-24">
+          <div class="date"><span class="m">Oct</span><span class="d">24</span><span class="w">Sat</span></div>
+          <div class="body">
+            <div class="tags"><span class="tag status" hidden></span><span class="tag">Community</span></div>
+            <h3>Kidz Town Hay Day</h3>
+            <p class="meta">10:00 AM – 1:00 PM · Downtown Livermore</p>
+            <p>Alpha Martial Arts will be at Kidz Town Hay Day in Downtown Livermore. Come out with your family, stop by, and join the fun. We hope to see lots of Alpha families there!</p>
+            <div class="change">
+              <strong>No Saturday Beast or Beginner’s class</strong>
+              <p>Saturday Beast Class and Beginner’s Class will not meet on Oct 24.</p>
             </div>
           </div>
         </article>
@@ -498,6 +521,10 @@ function refreshDates() {
     tag.className = 'tag status' + (cls ? ' ' + cls : '');
     tag.hidden = false;
     c.classList.toggle('past', t > e);
+  });
+  // Notices that expire after a date
+  Array.prototype.forEach.call(document.querySelectorAll('[data-until]'), function (n) {
+    n.hidden = t > dayNum(n.dataset.until);
   });
   // Finished events move to the bottom
   cards.filter(function (c) { return !c.classList.contains('past'); })
