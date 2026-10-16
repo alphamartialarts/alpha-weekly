@@ -171,6 +171,29 @@ h2::before {
 .track .len { font-family: var(--display); font-weight: 700; font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .wk.test span { color: var(--red); }
 .skipnote { margin: 0; padding: 9px 12px; border-radius: 6px; background: var(--red-soft); font-weight: 700; font-size: .92rem; }
+.promo {
+  display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 20px; align-items: start;
+  background: var(--surface); border: 2px solid var(--red); border-radius: 10px; padding: 18px;
+}
+.flyer { display: grid; gap: 6px; text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 700; text-align: center; }
+.flyer img { width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--line); display: block; }
+.flyer:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
+.promo-body { display: grid; gap: 8px; min-width: 0; }
+.promo-status { justify-self: start; }
+.promo-when { margin: 0; font-family: var(--display); font-weight: 700; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--red); }
+.promo h3 { margin: 0; font-family: var(--display); font-style: italic; font-weight: 900; font-size: 1.6rem; line-height: 1.05; text-transform: uppercase; text-wrap: balance; }
+.promo-sub { margin: 0; font-weight: 800; color: var(--red); }
+.promo p { margin: 0; }
+.why { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.why li { background: var(--red-soft); border-radius: 6px; padding: 8px 10px; font-size: .88rem; color: var(--muted); }
+.why b { display: block; color: var(--ink); font-size: .92rem; }
+.promo-ask { font-weight: 600; font-size: .94rem; }
+.promo .email { user-select: all; font-weight: 800; overflow-wrap: anywhere; }
+@media (max-width: 560px) {
+  .promo { grid-template-columns: 1fr; padding: 14px; }
+  .flyer { max-width: 260px; justify-self: center; }
+  .why { grid-template-columns: 1fr; }
+}
 .legend { font-size: .86rem; color: var(--muted); margin: 0; }
 .legend abbr { text-decoration: none; font-weight: 800; color: var(--ink); }
 
@@ -384,6 +407,27 @@ footer .contact span { user-select: all; }
           <div><h3>Black Belt Testing</h3><p>Come support our candidates on their big day.</p></div>
         </div>
       </div>
+
+      <article class="promo" data-start="2026-12-01" data-end="2026-12-31">
+        <a class="flyer" href="kick-into-december.jpg" target="_blank" rel="noopener">
+          <img src="kick-into-december.jpg" alt="Kick Into December flyer: Complimentary Family TKD Training at Alpha Martial Arts" width="1000" height="1285" loading="lazy">
+          <span>Tap to view full flyer</span>
+        </a>
+        <div class="promo-body">
+          <span class="tag status promo-status" hidden></span>
+          <p class="promo-when">All December · Dec 1–31</p>
+          <h3>Kick Into December!</h3>
+          <p class="promo-sub">Complimentary Family TKD Training</p>
+          <p>We invite families all December long. <b>Train together. Grow stronger.</b></p>
+          <ul class="why">
+            <li><b>Quality family time</b>Build stronger bonds.</li>
+            <li><b>Better health</b>Stay active together.</li>
+            <li><b>Less stress, more confidence</b>Build focus and confidence.</li>
+            <li><b>A stronger future</b>Create lasting memories.</li>
+          </ul>
+          <p class="promo-ask">Questions? Ask at the front desk or email <span class="email">info@amatkdo.com</span>.</p>
+        </div>
+      </article>
     </section>
 
     <section aria-labelledby="h-sched">
@@ -521,6 +565,15 @@ function refreshDates() {
     tag.className = 'tag status' + (cls ? ' ' + cls : '');
     tag.hidden = false;
     c.classList.toggle('past', t > e);
+  });
+  // December promo: countdown, "happening now", hide after it ends
+  Array.prototype.forEach.call(document.querySelectorAll('.promo[data-start]'), function (p) {
+    var s = dayNum(p.dataset.start), e = dayNum(p.dataset.end);
+    var tag = p.querySelector('.promo-status');
+    p.hidden = t > e;
+    if (t >= s) { tag.textContent = 'Happening now'; tag.className = 'tag status soon promo-status'; }
+    else { var n = s - t; tag.textContent = n === 1 ? 'Starts tomorrow' : 'Starts in ' + n + ' days'; tag.className = 'tag status promo-status'; }
+    tag.hidden = false;
   });
   // Notices that expire after a date
   Array.prototype.forEach.call(document.querySelectorAll('[data-until]'), function (n) {
