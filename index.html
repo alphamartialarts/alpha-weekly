@@ -130,6 +130,12 @@ h2::before {
 .change { border-left: 5px solid var(--blue); background: var(--blue-soft); border-radius: 6px; padding: 10px 14px; }
 .change strong { display: block; font-family: var(--display); font-weight: 800; font-style: italic; text-transform: uppercase; letter-spacing: .04em; color: var(--blue); }
 .change p { margin: 2px 0 0; }
+.makeup { border-left-color: var(--red); background: var(--red-soft); }
+.makeup strong { color: var(--red); }
+.makeup-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.makeup-list li { display: grid; grid-template-columns: 9.5em 1fr; gap: 10px; background: var(--surface); border-radius: 6px; padding: 8px 12px; font-weight: 700; }
+.makeup-list .mt { font-variant-numeric: tabular-nums; color: var(--muted); }
+@media (max-width: 420px) { .makeup-list li { grid-template-columns: 1fr; gap: 0; } }
 .checklist { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 8px; }
 .checklist li {
   display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start;
@@ -264,6 +270,15 @@ footer .contact span { user-select: all; }
       <div class="change" data-until="2026-10-24">
         <strong>No Saturday Beast or Beginner’s classes · Oct 17 &amp; Oct 24</strong>
         <p>Saturday Beast Class and Beginner’s Class are cancelled on <b>Oct 17</b> (Silicon Valley Taekwondo Championship) and <b>Oct 24</b> (Kidz Town Hay Day).</p>
+      </div>
+
+      <div class="change makeup" data-until="2026-10-28">
+        <strong>Make-up classes · Wednesday, Oct 21 &amp; Oct 28</strong>
+        <p>To make up for the cancelled Saturday classes, we’re adding these classes on <b>both Wednesdays</b>:</p>
+        <ul class="makeup-list">
+          <li><span class="mt">6:30 – 7:10 PM</span><span>Beast Leadership Class</span></li>
+          <li><span class="mt">7:10 – 8:00 PM</span><span>Demonstration Class</span></li>
+        </ul>
       </div>
 
       <div class="events">
