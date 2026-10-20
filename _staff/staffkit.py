@@ -30,7 +30,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 ITER = 600000
 KO = re.compile('[가-힣]')
-DOJANG_SOURCES = {'dojang-cal', 'alpha-weekly'}
+DOJANG_SOURCES = {'dojang-cal', 'alpha-weekly', 'us-holiday'}
 
 
 # ---------- crypto ----------
@@ -66,8 +66,12 @@ def _load(dirpath):
         out[os.path.basename(f)[:-5]] = d.get('data', d)
     return out
 
-def kind_of(title):
+def kind_of(title, source=''):
     t = title
+    if source == 'us-holiday' or 'US Holiday' in t:
+        return 'holiday'
+    if any(k in t for k in ['Staff Meeting', 'Instructor Training', '스태프 미팅', '사범 교육']):
+        return 'staff'
     if any(k in t for k in ['수업 없음', 'Summer Break', 'No Saturday', 'No class', 'Cancelled', 'cancelled']):
         return 'closed'
     if any(k in t for k in ['Make-up', 'Makeup', 'Schedule change']):
@@ -170,7 +174,7 @@ def build(dump, work, pw):
         if not m or i in memo['excluded_events']:
             continue
         ev = {'id': i, 'date': e['date'], 'time': e.get('time', ''), 'end': e.get('end', ''),
-              'title': m['title'], 'note': m['note'], 'kind': kind_of(e.get('title', '') + ' ' + m['title'])}
+              'title': m['title'], 'note': m['note'], 'kind': kind_of(e.get('title', '') + ' ' + m['title'], e.get('source', ''))}
         link = find_link(m['note'])
         if link:
             ev['link'] = link

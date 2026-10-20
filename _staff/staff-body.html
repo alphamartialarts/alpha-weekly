@@ -38,6 +38,8 @@ body { margin: 0; }
 .k-practice { background: #e9f4ec; color: #14532d; }
 .k-class { background: #fff3cd; color: #5c4400; }
 .k-closed { background: var(--line); color: var(--muted); }
+.k-staff { background: #efe9fb; color: #4c1d95; }
+.k-holiday { background: #ffedd5; color: #9a3412; }
 .s-more { font-size: .66rem; font-weight: 800; color: var(--muted); padding-left: 4px; }
 .s-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; font-size: .8rem; color: var(--muted); font-weight: 600; }
 .s-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
@@ -51,6 +53,8 @@ body { margin: 0; }
 .s-item.k-practice { border-left-color: #2f9a4a; background: var(--surface); color: var(--ink); }
 .s-item.k-class { border-left-color: #d9a400; background: var(--surface); color: var(--ink); }
 .s-item.k-closed { border-left-color: var(--muted); background: var(--surface); color: var(--ink); }
+.s-item.k-staff { border-left-color: #7c3aed; background: var(--surface); color: var(--ink); }
+.s-item.k-holiday { border-left-color: #ea580c; background: var(--surface); color: var(--ink); }
 .s-t { font-weight: 800; font-size: .86rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .s-b { min-width: 0; overflow-wrap: anywhere; }
 .s-b b { display: block; font-weight: 800; }
@@ -84,9 +88,13 @@ body { margin: 0; }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .k-practice { background: #12301c; color: #b7e4c4; }
   :root:not([data-theme="light"]) .k-class { background: #3a2f0b; color: #f3d98b; }
+  :root:not([data-theme="light"]) .k-staff { background: #2a1d4a; color: #d8c8ff; }
+  :root:not([data-theme="light"]) .k-holiday { background: #3b1d0c; color: #fdba74; }
 }
 :root[data-theme="dark"] .k-practice { background: #12301c; color: #b7e4c4; }
 :root[data-theme="dark"] .k-class { background: #3a2f0b; color: #f3d98b; }
+:root[data-theme="dark"] .k-staff { background: #2a1d4a; color: #d8c8ff; }
+:root[data-theme="dark"] .k-holiday { background: #3b1d0c; color: #fdba74; }
 @media (max-width: 560px) {
   .s-day { min-height: 54px; padding: 4px 2px; align-items: center; }
   .s-num { width: 22px; height: 22px; font-size: .78rem; }
@@ -97,6 +105,8 @@ body { margin: 0; }
   .s-chip.k-practice { background: #2f9a4a; }
   .s-chip.k-class { background: #d9a400; }
   .s-chip.k-closed { background: var(--muted); }
+  .s-chip.k-staff { background: #7c3aed; }
+  .s-chip.k-holiday { background: #ea580c; }
   .s-more { font-size: .58rem; padding: 0; }
   .s-day .s-ck { top: 4px; right: 4px; width: 6px; height: 6px; border-width: 1.5px; }
   .s-calhead h3 { font-size: 1.15rem; }
@@ -139,6 +149,8 @@ body { margin: 0; }
           <span><i class="k-practice"></i>Practice</span>
           <span><i class="k-class"></i>Class change</span>
           <span><i class="k-closed"></i>No class</span>
+          <span><i class="k-staff"></i>Staff</span>
+          <span><i class="k-holiday"></i>Holiday</span>
           <span><i class="ck"></i>Has checklist</span>
         </p>
         <div class="s-detail" id="s-detail"></div>
@@ -159,6 +171,8 @@ body { margin: 0; }
         <button type="button" data-k="prep" aria-pressed="false">Prep</button>
         <button type="button" data-k="practice" aria-pressed="false">Practice</button>
         <button type="button" data-k="class" aria-pressed="false">Class changes</button>
+        <button type="button" data-k="staff" aria-pressed="false">Staff</button>
+        <button type="button" data-k="holiday" aria-pressed="false">Holidays</button>
       </div>
       <div class="s-list" id="s-list"></div>
     </section>
@@ -188,7 +202,7 @@ var STAFF = {{DATA}};
   var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var MONL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   var WDE = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-  var KIND = { event: 'Event', prep: 'Prep', practice: 'Practice', 'class': 'Class change', closed: 'No class' };
+  var KIND = { event: 'Event', prep: 'Prep', practice: 'Practice', 'class': 'Class change', closed: 'No class', staff: 'Staff', holiday: 'Holiday' };
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function todayISO() {
