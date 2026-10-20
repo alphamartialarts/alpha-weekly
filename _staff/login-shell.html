@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Staff Only | Alpha Martial Arts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:ital,wght@0,700;1,900&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,800&display=swap">
+<style>
+:root {
+  --ink: #111214; --paper: #f5f6f8; --surface: #ffffff; --line: #dde0e6; --muted: #5b6170;
+  --red: #d12028; --blue: #0a51a6; --red-soft: #fbe9ea;
+  --display: "Saira", "Arial Narrow", Arial, sans-serif;
+  --body: "Nunito Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --ink: #eef0f4; --paper: #0d0e11; --surface: #17191e; --line: #2a2d35; --muted: #a2a8b6; --red: #ff4b52; --blue: #4d8fe6; --red-soft: #2c1517; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; display: grid; place-items: center;
+  padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); }
+.box { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.top { background: #111214; color: #ffffff; padding: 24px 22px 20px; display: flex; gap: 14px; align-items: center; position: relative; overflow: hidden; }
+.top::after { content: ""; position: absolute; right: -50px; top: -40px; width: 80px; height: 260px; background: linear-gradient(90deg, #0a51a6 0 50%, #d12028 50% 100%); transform: rotate(-36deg); }
+.patch { flex: none; width: 64px; height: 64px; border-radius: 50%; background: #ffffff; display: grid; place-items: center; position: relative; z-index: 1; }
+.patch img { width: 52px; height: auto; }
+.top p { margin: 0; font: 700 .72rem/1 var(--display); letter-spacing: .14em; text-transform: uppercase; opacity: .75; position: relative; z-index: 1; }
+.top h1 { margin: 6px 0 0; font: 900 italic 1.9rem/1 var(--display); text-transform: uppercase; position: relative; z-index: 1; }
+form { padding: 22px; display: grid; gap: 12px; }
+label { font: 700 .78rem/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+input { width: 100%; font: inherit; font-size: 1.05rem; padding: 12px 14px; border: 2px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); }
+input:focus { outline: none; border-color: var(--ink); }
+button { font: 800 italic 1rem/1 var(--display); text-transform: uppercase; letter-spacing: .05em; padding: 14px; border: 0; border-radius: 999px; background: var(--red); color: #ffffff; cursor: pointer; }
+button:disabled { opacity: .6; cursor: default; }
+button:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.err { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--red-soft); color: var(--ink); font-weight: 700; font-size: .92rem; }
+.err[hidden] { display: none; }
+.hint { margin: 0; font-size: .85rem; color: var(--muted); }
+.back { display: block; text-align: center; padding: 0 22px 20px; font-size: .9rem; color: var(--blue); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="top">
+    <div class="patch"><img src="{{LOGO}}" alt=""></div>
+    <div><p>Alpha Martial Arts</p><h1>Staff Only</h1></div>
+  </div>
+  <form id="f" autocomplete="off">
+    <label for="pw">Staff password</label>
+    <input id="pw" type="password" required autofocus>
+    <p class="err" id="err" hidden></p>
+    <button id="go" type="submit">Enter</button>
+    <p class="hint">You will be asked for the password every time you open this page.</p>
+  </form>
+  <a class="back" href="./">← Back to Alpha Weekly</a>
+</div>
+<script id="payload" type="application/json">{{PAYLOAD}}</script>
+<script>
+(function () {
+  var P = JSON.parse(document.getElementById('payload').textContent);
+  function b64(s) { var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+  var form = document.getElementById('f'), err = document.getElementById('err'), go = document.getElementById('go'), pw = document.getElementById('pw');
+  if (!window.crypto || !crypto.subtle) { err.textContent = 'This browser cannot open the staff page. Please try Chrome or Safari.'; err.hidden = false; go.disabled = true; return; }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    err.hidden = true; go.disabled = true; go.textContent = 'Checking…';
+    var enc = new TextEncoder();
+    crypto.subtle.importKey('raw', enc.encode(pw.value), 'PBKDF2', false, ['deriveKey'])
+      .then(function (base) {
+        return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64(P.salt), iterations: P.iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+      })
+      .then(function (key) { return crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(P.iv) }, key, b64(P.ct)); })
+      .then(function (buf) {
+        var html = new TextDecoder().decode(buf);
+        pw.value = '';
+        document.open(); document.write(html); document.close();
+      })
+      .catch(function () {
+        err.textContent = 'That password is not correct. Please try again.';
+        err.hidden = false; go.disabled = false; go.textContent = 'Enter'; pw.select();
+      });
+  });
+})();
+</script>
+</body>
+</html>
