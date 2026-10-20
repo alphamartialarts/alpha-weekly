@@ -194,6 +194,9 @@ h2::before {
 .why li { background: var(--red-soft); border-radius: 6px; padding: 8px 10px; font-size: .88rem; color: var(--muted); }
 .why b { display: block; color: var(--ink); font-size: .92rem; }
 .promo-ask { font-weight: 600; font-size: .94rem; }
+.promo-blue { border-color: var(--blue); }
+.promo-blue .promo-when, .promo-blue .promo-sub { color: var(--blue); }
+.promo .meta { color: var(--muted); font-weight: 600; font-size: .92rem; }
 .promo .email { user-select: all; font-weight: 800; overflow-wrap: anywhere; }
 @media (max-width: 560px) {
   .promo { grid-template-columns: 1fr; padding: 14px; }
@@ -354,6 +357,32 @@ footer .contact span { user-select: all; }
           <p class="promo-ask">Questions? Ask at the front desk or email <span class="email">info@amatkdo.com</span>.</p>
         </div>
       </article>
+
+      <article class="promo promo-blue" data-start="2026-12-05" data-end="2026-12-05">
+        <a class="flyer" href="pno-plus-dec5.jpg" target="_blank" rel="noopener">
+          <img src="pno-plus-dec5.jpg" alt="Parents' Night Out Plus poster: Christmas Tree Decorating, Saturday December 5, 4 to 9 PM" width="1000" height="1294" loading="lazy">
+          <span>Tap to view full poster</span>
+        </a>
+        <div class="promo-body">
+          <span class="tag status promo-status" hidden></span>
+          <p class="promo-when">Sat, Dec 5 · 4:00 – 9:00 PM</p>
+          <h3>Parents’ Night Out Plus</h3>
+          <p class="promo-sub">Christmas Tree Decorating!</p>
+          <p><b>Parents deserve a night off!</b> Enjoy 5 hours of free time while your kids decorate a Christmas tree together at Alpha Martial Arts.</p>
+          <p class="meta">Drop off at 4 PM · Pick up at 9 PM</p>
+          <div class="chips">
+            <span class="chip">Christmas tree decorating</span>
+            <span class="chip">Movie</span>
+            <span class="chip">Dinner</span>
+            <span class="chip">Games</span>
+            <span class="chip">Crafts &amp; more</span>
+          </div>
+          <div class="signup">
+            <strong>Sign up required</strong>
+            <p>Sign up at the front desk, or email us at <span class="email">info@amatkdo.com</span>.</p>
+          </div>
+        </div>
+      </article>
     </section>
 
     <section aria-labelledby="h-sched">
@@ -497,8 +526,13 @@ function refreshDates() {
     var s = dayNum(p.dataset.start), e = dayNum(p.dataset.end);
     var tag = p.querySelector('.promo-status');
     p.hidden = t > e;
-    if (t >= s) { tag.textContent = 'Happening now'; tag.className = 'tag status soon promo-status'; }
-    else { var n = s - t; tag.textContent = n === 1 ? 'Starts tomorrow' : 'Starts in ' + n + ' days'; tag.className = 'tag status promo-status'; }
+    var oneDay = s === e;
+    if (t >= s) { tag.textContent = oneDay ? 'Today' : 'Happening now'; tag.className = 'tag status soon promo-status'; }
+    else {
+      var n = s - t;
+      tag.textContent = oneDay ? (n === 1 ? 'Tomorrow' : 'In ' + n + ' days') : (n === 1 ? 'Starts tomorrow' : 'Starts in ' + n + ' days');
+      tag.className = 'tag status' + (n === 1 ? ' soon' : '') + ' promo-status';
+    }
     tag.hidden = false;
   });
   // Notices that expire after a date
