@@ -81,6 +81,25 @@ body { margin: 0; }
 .s-dead { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .s-dead li { display: grid; grid-template-columns: 9em minmax(0, 1fr); gap: 10px; background: var(--red-soft); border-radius: 6px; padding: 8px 12px; font-weight: 600; font-size: .93rem; }
 .s-dead li b { font-variant-numeric: tabular-nums; color: var(--red); }
+.s-write { justify-self: start; display: inline-flex; gap: 8px; align-items: center; background: var(--red); color: #ffffff; text-decoration: none; border-radius: 999px; padding: 11px 18px; font: 800 italic .95rem/1 var(--display); text-transform: uppercase; letter-spacing: .04em; }
+.s-write:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.s-search input { width: 100%; font: inherit; border: 2px solid var(--ink); border-radius: 999px; padding: 10px 16px; background: var(--paper); color: var(--ink); }
+.s-search input:focus { outline: none; border-color: var(--blue); }
+.s-nlist { display: grid; gap: 10px; }
+.s-meet { border: 1px solid var(--line); border-left: 5px solid #7c3aed; border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; background: var(--surface); min-width: 0; }
+.s-meet h4 { margin: 0; font-size: 1.05rem; font-weight: 800; overflow-wrap: anywhere; }
+.s-meet .s-md { margin: 0; font: 800 .74rem/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.s-meet p { margin: 0; overflow-wrap: anywhere; }
+.s-meet .s-body { white-space: pre-wrap; }
+.s-meet .s-dec { background: var(--blue-soft); border-radius: 6px; padding: 8px 12px; white-space: pre-wrap; }
+.s-todo { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+.s-todo li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; font-weight: 600; font-size: .93rem; }
+.s-todo li::before { content: ""; width: 12px; height: 12px; margin-top: 4px; border: 2px solid var(--red); border-radius: 3px; }
+.s-todo li.done::before { background: var(--red); }
+.s-todo li.done span { text-decoration: line-through; color: var(--muted); }
+.s-todo small { display: block; color: var(--muted); font-weight: 600; }
+.s-todo small.late { color: var(--red); font-weight: 800; }
+.s-nlist mark, #s-nopen mark { background: #ffe58a; color: #111214; border-radius: 2px; }
 .s-divider { display: grid; gap: 4px; padding: 18px; border-radius: 10px; background: var(--ink); color: var(--paper); }
 .s-divider b { font: 900 italic 1.2rem/1.1 var(--display); text-transform: uppercase; }
 .s-divider span { opacity: .8; font-size: .92rem; }
@@ -181,6 +200,21 @@ body { margin: 0; }
       <h2 id="s-h-dead">Deadlines</h2>
       <p class="s-note">Things that need to be done by a certain date.</p>
       <ul class="s-dead" id="s-dead"></ul>
+    </section>
+
+    <section aria-labelledby="s-h-notes">
+      <h2 id="s-h-notes">Meeting Notes</h2>
+      <p class="s-note">What we talked about, what we decided, and who is doing what.</p>
+      <a class="s-write" href="https://claude.ai/artifact/19kHZywi5AGuEnoVQLsBjC" target="_blank" rel="noopener">Write or edit notes <span aria-hidden="true">→</span></a>
+      <p class="s-note" style="margin:0">Writing notes and checking off to-dos needs a Claude account with access. Everyone can read them here.</p>
+      <div class="s-card">
+        <div class="s-search">
+          <input id="s-nq" type="search" placeholder="Search notes, to-dos, names, or dates" aria-label="Search meeting notes" autocomplete="off">
+        </div>
+        <div id="s-nopen"></div>
+        <div id="s-nlist" class="s-nlist"></div>
+        <button type="button" class="s-btn" id="s-nmore" hidden>Show more</button>
+      </div>
     </section>
 
     <div class="s-divider">
@@ -309,15 +343,58 @@ var STAFF = {{DATA}};
   wire('s-range', 'r', function (v) { range = v; });
   wire('s-kinds', 'k', function (v) { kindF = v; });
 
+  var NOTES = STAFF.notes || [];
   function renderDead() {
-    var open = TASKS.filter(function (k) { return toNum(k.until) >= tN; }).sort(function (a, b) { return a.until < b.until ? -1 : 1; });
+    var open = TASKS.filter(function (k) { return toNum(k.until) >= tN; });
+    NOTES.forEach(function (m) { (m.todos || []).forEach(function (x) { if (!x.done && x.due) open.push({ title: x.t + (x.who ? ' (' + x.who + ')' : '') + ' · from ' + m.title, start: m.date, until: x.due }); }); });
+    open.sort(function (a, b) { return a.until < b.until ? -1 : 1; });
     document.getElementById('s-dead').innerHTML = open.length ? open.map(function (k) {
       var u = parts(k.until), s = parts(k.start);
       return '<li><b>By ' + MON[u.m] + ' ' + u.d + ', ' + u.y + '</b><span>' + esc(k.title) + '<br><small style="color:var(--muted)">Start ' + MON[s.m] + ' ' + s.d + ', ' + s.y + '</small></span></li>';
     }).join('') : '<li><span>No open deadlines.</span></li>';
   }
 
-  renderCal(); renderList(); renderDead();
+  var nCount = 10;
+  function hl(text, toks) {
+    var out = esc(text);
+    toks.forEach(function (tk) { out = out.replace(new RegExp('(' + esc(tk).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>'); });
+    return out;
+  }
+  function todoLi(x, toks) {
+    var late = x.due && !x.done && toNum(x.due) < tN;
+    var meta = [x.who, x.due ? (late ? 'Overdue · ' : 'Due ') + MON[parts(x.due).m] + ' ' + parts(x.due).d : ''].filter(Boolean).join(' · ');
+    return '<li class="' + (x.done ? 'done' : '') + '"><span>' + hl(x.t, toks) + (meta ? '<small class="' + (late ? 'late' : '') + '">' + hl(meta, toks) + '</small>' : '') + '</span></li>';
+  }
+  function renderNotes() {
+    var raw = (document.getElementById('s-nq').value || '').trim().toLowerCase();
+    var toks = raw.split(/\s+/).filter(Boolean);
+    var list = NOTES.filter(function (m) {
+      if (!toks.length) return true;
+      var p = parts(m.date);
+      var hay = [m.title, m.type, m.attendees, m.notes, m.decisions, (m.todos || []).map(function (x) { return x.t + ' ' + x.who; }).join(' '),
+        m.date, (p.m + 1) + '/' + p.d, MON[p.m] + ' ' + p.d, MONL[p.m]].join(' | ').toLowerCase();
+      return toks.every(function (t) { return hay.indexOf(t) >= 0; });
+    });
+    var openT = [];
+    NOTES.forEach(function (m) { (m.todos || []).forEach(function (x) { if (!x.done) openT.push(x); }); });
+    document.getElementById('s-nopen').innerHTML = (!toks.length && openT.length) ? '<p class="s-label">Open to-dos (' + openT.length + ')</p><ul class="s-todo">' + openT.map(function (x) { return todoLi(x, []); }).join('') + '</ul>' : '';
+    var shown = toks.length ? list : list.slice(0, nCount);
+    document.getElementById('s-nlist').innerHTML = shown.length ? shown.map(function (m) {
+      var p = parts(m.date);
+      return '<article class="s-meet"><p class="s-md">' + WDE[wd(m.date)] + ' · ' + MON[p.m] + ' ' + p.d + ', ' + p.y + ' · ' + esc(m.type || 'Meeting') + '</p>' +
+        '<h4>' + hl(m.title, toks) + '</h4>' +
+        (m.attendees ? '<p class="s-note" style="margin:0">Attended: ' + hl(m.attendees, toks) + '</p>' : '') +
+        (m.notes ? '<p class="s-body">' + hl(m.notes, toks) + '</p>' : '') +
+        (m.decisions ? '<p class="s-label">Decisions</p><p class="s-dec">' + hl(m.decisions, toks) + '</p>' : '') +
+        ((m.todos || []).length ? '<p class="s-label">To-dos</p><ul class="s-todo">' + m.todos.map(function (x) { return todoLi(x, toks); }).join('') + '</ul>' : '') +
+        '</article>';
+    }).join('') : '<p class="s-empty">' + (toks.length ? 'No notes match your search.' : 'No meeting notes yet. Notes written on the Staff Notes page show up here.') + '</p>';
+    document.getElementById('s-nmore').hidden = !!toks.length || list.length <= nCount;
+  }
+  document.getElementById('s-nq').addEventListener('input', renderNotes);
+  document.getElementById('s-nmore').addEventListener('click', function () { nCount += 10; renderNotes(); });
+
+  renderCal(); renderList(); renderDead(); renderNotes();
 })();
 </script>
 </body>

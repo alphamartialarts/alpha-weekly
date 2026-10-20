@@ -10,6 +10,8 @@ Commands (run from anywhere; paths are explicit):
   python3 staffkit.py prepare  DUMP_DIR WORK_DIR PASSWORD
       DUMP_DIR holds the Daily database exported as JSON files:
         DUMP_DIR/events/*.json, DUMP_DIR/days/*.json, DUMP_DIR/tasks/*.json
+      and, optionally, the Staff Notes database:
+        DUMP_DIR/meetings/*.json
       Writes WORK_DIR/pending.json listing anything not decided yet.
       Each pending entry needs "include": true/false and, when included,
       English text ("en", or "title"/"note" for events).
@@ -193,13 +195,24 @@ def build(dump, work, pw):
             continue
         out_tasks.append({'title': en, 'start': k.get('from', ''), 'until': k.get('until', '')})
     out_tasks.sort(key=lambda x: x['until'])
+    notes = []
+    for i, m in _load(os.path.join(dump, 'meetings')).items():
+        if not m.get('date') or not m.get('title'):
+            continue
+        notes.append({'id': i, 'date': m['date'], 'type': m.get('type', ''), 'title': m.get('title', ''),
+                      'attendees': m.get('attendees', ''), 'notes': m.get('notes', ''), 'decisions': m.get('decisions', ''),
+                      'todos': [{'t': x.get('t', ''), 'who': x.get('who', ''), 'due': x.get('due', ''), 'done': bool(x.get('done'))}
+                                for x in (m.get('todos') or []) if x.get('t')],
+                      'createdAt': m.get('createdAt', '')})
+    notes.sort(key=lambda x: (x['date'], x['createdAt']), reverse=True)
     # drop memo entries for things no longer in the Daily
     memo['events'] = {k: v for k, v in memo['events'].items() if k in events}
-    data = {'events': out_ev, 'checklists': checks, 'tasks': out_tasks, 'memo': memo}
+    data = {'events': out_ev, 'checklists': checks, 'tasks': out_tasks, 'notes': notes, 'memo': memo}
 
     plain = render(data)
     if staff_json(prev_plain).get('events') == out_ev and staff_json(prev_plain).get('checklists') == checks \
-            and staff_json(prev_plain).get('tasks') == out_tasks and _strip_data(prev_plain) == _strip_data(plain):
+            and staff_json(prev_plain).get('tasks') == out_tasks and staff_json(prev_plain).get('notes', []) == notes \
+            and _strip_data(prev_plain) == _strip_data(plain):
         print('UNCHANGED'); return
     shell = open(os.path.join(HERE, 'login-shell.html'), encoding='utf-8').read()
     shell = shell.replace('{{LOGO}}', _logo()).replace('{{PAYLOAD}}', encrypt(plain, pw))
