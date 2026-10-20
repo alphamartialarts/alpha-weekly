@@ -28,3 +28,10 @@ python3 _staff/staffkit.py build   DUMP_DIR WORK_DIR PASSWORD
 - Translate Korean to short, plain English in the same style as existing items
   (for example "Belt Testing prep starts (4 weeks before)", "Print checklist",
   "Give out tapes").
+
+## Meeting notes
+
+Meeting notes are written in the "Alpha Staff Notes" artifact
+(https://claude.ai/artifact/19kHZywi5AGuEnoVQLsBjC, collection `meetings`).
+Before `build`, export that collection into `DUMP_DIR/meetings/` so the staff
+page shows the latest notes. Notes are copied as written (not translated).
