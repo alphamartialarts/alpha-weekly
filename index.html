@@ -195,6 +195,14 @@ h2::before {
 .why b { display: block; color: var(--ink); font-size: .92rem; }
 .promo-ask { font-weight: 600; font-size: .94rem; }
 .promo-blue { border-color: var(--blue); }
+.cta {
+  justify-self: start; display: inline-flex; align-items: center; gap: 8px; margin: 8px 0 4px;
+  background: var(--red); color: #ffffff; text-decoration: none; border-radius: 999px; padding: 11px 20px;
+  font: 800 italic 1rem/1 var(--display); text-transform: uppercase; letter-spacing: .04em;
+}
+.cta:hover { filter: brightness(1.08); }
+.cta:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.signup .cta { display: inline-flex; }
 .promo-blue .promo-when, .promo-blue .promo-sub { color: var(--blue); }
 .promo .meta { color: var(--muted); font-weight: 600; font-size: .92rem; }
 .promo .email { user-select: all; font-weight: 800; overflow-wrap: anywhere; }
@@ -359,9 +367,9 @@ footer .contact span { user-select: all; }
       </article>
 
       <article class="promo promo-blue" data-start="2026-12-05" data-end="2026-12-05">
-        <a class="flyer" href="pno-plus-dec5.jpg" target="_blank" rel="noopener">
-          <img src="pno-plus-dec5.jpg" alt="Parents' Night Out Plus poster: Christmas Tree Decorating, Saturday December 5, 4 to 9 PM" width="1000" height="1294" loading="lazy">
-          <span>Tap to view full poster</span>
+        <a class="flyer" href="https://kick.site/chzubkni" target="_blank" rel="noopener">
+          <img src="pno-plus-dec5.jpg" alt="Parents' Night Out Plus poster: Christmas Tree Decorating, Saturday December 5, 4 to 9 PM. Tap to sign up." width="1000" height="1294" loading="lazy">
+          <span>Tap the poster to sign up</span>
         </a>
         <div class="promo-body">
           <span class="tag status promo-status" hidden></span>
@@ -379,7 +387,8 @@ footer .contact span { user-select: all; }
           </div>
           <div class="signup">
             <strong>Sign up required</strong>
-            <p>Sign up at the front desk, or email us at <span class="email">info@amatkdo.com</span>.</p>
+            <a class="cta" href="https://kick.site/chzubkni" target="_blank" rel="noopener">Sign Up Now <span aria-hidden="true">→</span></a>
+            <p>You can also sign up at the front desk, or email us at <span class="email">info@amatkdo.com</span>.</p>
           </div>
         </div>
       </article>
