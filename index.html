@@ -241,8 +241,14 @@ footer .wrap { padding-block: 26px 30px; display: flex; flex-wrap: wrap; gap: 14
 footer strong { font-family: var(--display); font-style: italic; font-weight: 900; text-transform: uppercase; font-size: 1.2rem; }
 footer .contact { display: flex; flex-wrap: wrap; gap: 8px 20px; font-weight: 600; }
 footer .contact span { user-select: all; }
-footer .staff-link { flex-basis: 100%; font-size: .8rem; font-weight: 700; color: #ffffff; opacity: .6; text-decoration: underline; text-underline-offset: 3px; }
-footer .staff-link:hover, footer .staff-link:focus-visible { opacity: 1; }
+.mast .staff-link {
+  margin-left: auto; align-self: flex-start; position: relative; z-index: 2; flex: none;
+  font: 700 .78rem/1 var(--display); text-transform: uppercase; letter-spacing: .08em;
+  padding: 10px 14px; border-radius: 999px; border: 1px solid #ffffff66; background: #111214; color: #ffffff; text-decoration: none;
+}
+.mast .staff-link:hover { border-color: #ffffff; }
+.mast .staff-link:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+@media (max-width: 520px) { .mast .staff-link { padding: 8px 10px; font-size: .7rem; } }
 
 @media (max-width: 520px) {
   .mast .wrap { gap: 14px; }
@@ -268,8 +274,9 @@ footer .staff-link:hover, footer .staff-link:focus-visible { opacity: 1; }
     <div>
       <p class="kicker">Alpha Martial Arts · Taekwondo</p>
       <h1>Alpha Weekly</h1>
-      <p class="issue">Week of October 12–18, 2026</p>
+      <p class="issue" id="issue">Week of October 19–25, 2026</p>
     </div>
+    <a class="staff-link" href="staff.html">Staff Only</a>
   </div>
 </header>
 
@@ -470,7 +477,6 @@ footer .staff-link:hover, footer .staff-link:focus-visible { opacity: 1; }
       <span>925-895-9337</span>
       <span>info@amatkdo.com</span>
     </div>
-    <a class="staff-link" href="staff.html">Staff Only</a>
   </div>
 </footer>
 
@@ -596,8 +602,16 @@ function cycleState(t, anchor, anchorIdx, len) {
   while (SKIP_WEEKS.indexOf(nextMon) !== -1) nextMon += 7;
   return { skip: false, cur: idxFor(mon), next: idxFor(nextMon) };
 }
+function refreshIssue() {
+  var t = todayNum(), mon = t - ((new Date(t * 864e5).getUTCDay() + 6) % 7), sun = mon + 6;
+  var M = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var a = new Date(mon * 864e5), b = new Date(sun * 864e5);
+  var txt = 'Week of ' + M[a.getUTCMonth()] + ' ' + a.getUTCDate() + '–' + (a.getUTCMonth() === b.getUTCMonth() ? '' : M[b.getUTCMonth()] + ' ') + b.getUTCDate() + ', ' + b.getUTCFullYear();
+  var el = document.getElementById('issue'); if (el) el.textContent = txt;
+}
 refreshDates();
-setInterval(refreshDates, 10 * 60 * 1000);
+refreshIssue();
+setInterval(function () { refreshDates(); refreshIssue(); }, 10 * 60 * 1000);
 </script>
 
 <!-- Visitor counter (GoatCounter) -->
