@@ -114,6 +114,42 @@ body { margin: 0; }
 :root[data-theme="dark"] .k-class { background: #3a2f0b; color: #f3d98b; }
 :root[data-theme="dark"] .k-staff { background: #2a1d4a; color: #d8c8ff; }
 :root[data-theme="dark"] .k-holiday { background: #3b1d0c; color: #fdba74; }
+/* Today's Meeting pin (same layout as the PDF) */
+.p-sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 10px; min-width: 0; }
+.p-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; border-bottom: 3px solid var(--ink); padding-bottom: 8px; flex-wrap: wrap; }
+.p-head b { font: 900 italic 1.4rem/1 var(--display); text-transform: uppercase; }
+.p-head span { font: 700 .74rem/1.3 var(--display); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: right; }
+.p-att { margin: 0; font-size: .88rem; color: var(--muted); font-weight: 600; }
+.p-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
+.p-box { border: 1.5px solid var(--ink); border-radius: 12px; padding: 8px 12px; display: grid; gap: 4px; min-width: 0; }
+.p-box h5 { margin: 0; text-align: center; font: 800 .92rem/1.2 var(--display); }
+.p-box h5.urg { color: var(--red); }
+.p-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.p-list li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 3px; overflow-wrap: anywhere; font-size: .93rem; }
+.p-list li::before { content: ""; width: 12px; height: 12px; margin-top: 4px; border: 2px solid var(--ink); border-radius: 3px; }
+.p-list li.done::before { background: var(--ink); }
+.p-list.plain li { grid-template-columns: minmax(0, 1fr); }
+.p-list.plain li::before { display: none; }
+.p-head span { margin-left: auto; }
+.p-list li.done span { text-decoration: line-through; color: var(--muted); }
+.p-none { color: var(--muted); font-size: .88rem; }
+.p-score { text-align: center; font: 900 italic 1.7rem/1 var(--display); }
+.p-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--paper); border-radius: 8px; padding: 8px 10px; font-size: .93rem; }
+.p-h { margin: 6px 0 0; font: 800 .92rem/1.2 var(--display); text-transform: uppercase; letter-spacing: .04em; }
+.p-h::before { content: "❚ "; color: var(--red); }
+.p-kv { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.p-kv div { background: var(--paper); border-radius: 8px; padding: 6px; text-align: center; min-width: 0; }
+.p-kv b { display: block; font: 700 .6rem/1.2 var(--display); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.p-kv span { font: 800 1rem/1.1 var(--display); }
+.p-wrap { overflow-x: auto; }
+.p-t { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.p-t th, .p-t td { border: 1px solid var(--line); padding: 5px 7px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.p-t th { background: var(--paper); font: 700 .66rem/1.2 var(--display); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.p-t { min-width: 560px; }
+.p-t td, .p-t th { overflow-wrap: normal; word-break: normal; }
+.p-pill { white-space: nowrap; display: inline-block; font: 700 .62rem/1 var(--display); letter-spacing: .06em; text-transform: uppercase; padding: 3px 6px; border-radius: 999px; border: 1px solid var(--ink); margin: 1px 2px 1px 0; }
+.p-pins { display: grid; gap: 14px; }
+@media (max-width: 640px) { .p-grid { grid-template-columns: 1fr; } .p-kv { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) {
   .s-day { min-height: 54px; padding: 4px 2px; align-items: center; }
   .s-num { width: 22px; height: 22px; font-size: .78rem; }
@@ -151,6 +187,11 @@ body { margin: 0; }
 
 <main>
   <div class="wrap">
+    <section aria-labelledby="s-h-pin" id="s-pin" hidden>
+      <h2 id="s-h-pin">Today’s Meeting</h2>
+      <div class="p-pins" id="s-pins"></div>
+    </section>
+
     <section aria-labelledby="s-h-cal">
       <h2 id="s-h-cal">Staff Calendar</h2>
       <p class="s-note">Tap a day to see every event, prep step, and checklist for that day.</p>
@@ -272,6 +313,50 @@ var STAFF = {{DATA}};
 
   document.getElementById('s-issue').textContent = WDE[wd(T)].charAt(0) + WDE[wd(T)].slice(1).toLowerCase() + ', ' + MONL[tp.m] + ' ' + tp.d + ', ' + tp.y;
   document.getElementById('s-out').addEventListener('click', function () { location.reload(); });
+
+  /* ---------- Today's Meeting pin ---------- */
+  function longD(s) { var p = parts(s); return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][wd(s)] + ', ' + MONL[p.m] + ' ' + p.d + ', ' + p.y; }
+  function shortD(s) { var p = parts(s); return MON[p.m] + ' ' + p.d; }
+  function pList(a) { return a && a.length ? '<ul class="p-list">' + a.map(function (x) { return '<li class="' + (x.done ? 'done' : '') + '"><span>' + esc(x.t) + '</span></li>'; }).join('') + '</ul>' : '<span class="p-none">—</span>'; }
+  function pBox(title, inner, cls) { return '<div class="p-box"><h5' + (cls ? ' class="' + cls + '"' : '') + '>' + title + '</h5>' + inner + '</div>'; }
+  function pTbl(head, rows, cells) {
+    if (!rows || !rows.length) return '<span class="p-none">—</span>';
+    return '<div class="p-wrap"><table class="p-t"><thead><tr>' + head.map(function (h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      rows.map(function (r) { return '<tr>' + cells(r).map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
+  }
+  function pHead(m, label) { return '<div class="p-head"><b>' + esc(m.title) + '</b><span>' + label + '<br>' + esc(longD(m.date)) + '</span></div>' + (m.attendees ? '<p class="p-att">Attended: ' + esc(m.attendees) + '</p>' : ''); }
+  function roundPin(m) {
+    var d = m.data || {}, L = d.lists || {};
+    return '<div class="p-sheet">' + pHead(m, 'Daily Meeting · Today') + '<div class="p-grid">' +
+      pBox('Shout Out for Team / Leaders / Students', pList(L.shout)) + pBox('Today’s Appointment', pList(L.appts)) +
+      pBox('Pending / New Issues', pList(L.pending)) + pBox('Today’s Task', pList(L.tasks)) +
+      pBox('Alert Student List', '<span class="p-none">' + (d.alertCount ? d.alertCount + ' student' + (d.alertCount > 1 ? 's' : '') + ' on the list. Names are in Staff Notes only.' : '—') + '</span>') +
+      pBox('Urgency', pList(L.urgent), 'urg') + pBox('KPI: Total Score', '<div class="p-score">' + esc(d.score || '—') + '</div>') +
+      '</div>' + (d.summary ? pBox('Summary', '<p class="p-text">' + esc(d.summary) + '</p>') : '') + '</div>';
+  }
+  function wbPin(m) {
+    var d = m.data || {}, k = d.kpi || {};
+    var KP = [['active', 'Total Active Students'], ['newst', 'New Students'], ['cancel', 'Cancels / Drops'], ['leads', 'Leads Generated'], ['booked', 'Intro Trials Booked'], ['showed', 'Trials Showed Up'], ['rate', 'Show-Up Rate'], ['upg', 'Program Upgrades']];
+    var rate = k.rate || (parseFloat(k.booked) > 0 && k.showed ? Math.round(parseFloat(k.showed) / parseFloat(k.booked) * 100) + '' : '');
+    var pill = function (v) { return v ? '<span class="p-pill">' + esc(v) + '</span>' : ''; };
+    var li = function (a, mk) { return a && a.length ? '<ul class="p-list plain">' + a.map(function (x) { return '<li><span>' + mk + ' ' + esc(x.t) + '</span></li>'; }).join('') + '</ul>' : '<span class="p-none">—</span>'; };
+    return '<div class="p-sheet">' + pHead(m, 'Weekly Staff Meeting · This week') +
+      '<p class="p-h">KPIs</p><div class="p-kv">' + KP.map(function (x) { var v = x[0] === 'rate' ? rate : k[x[0]]; return '<div><b>' + x[1] + '</b><span>' + (v ? esc(v + (x[0] === 'rate' ? '%' : '')) : '—') + '</span></div>'; }).join('') + '</div>' +
+      '<p class="p-h">Old Business</p>' + pTbl(['Task / issue', 'How it was handled', 'Status'], d.old, function (r) { return [esc(r.task), esc(r.how), pill(r.status)]; }) +
+      '<p class="p-h">Wins & Lessons</p><div class="p-grid"><div>' + li(d.wins, '★') + '</div><div>' + li(d.lessons, '▲') + '</div></div>' +
+      '<p class="p-h">New Business</p>' + pTbl(['Topic / issue', 'Next steps', 'Assignee', 'Target'], d.newb, function (r) { return [esc(r.topic), esc(r.steps), esc(r.who), r.due ? shortD(r.due) : '']; }) +
+      '<p class="p-h">Upcoming Events & Campaigns</p>' + pTbl(['Date', 'Event & audience', 'Purpose', 'Goal'], d.events, function (r) { return [r.date ? shortD(r.date) : '', esc(r.name), (r.lead ? pill('Lead Gen') : '') + (r.ret ? pill('Retention') : '') + (r.rev ? pill('Revenue') : ''), esc(r.goal)]; }) +
+      '<p class="p-h">Top 3 Focus & Action Plan</p>' + pTbl(['Focus area', 'Action step', 'Due', 'Status'], d.focus, function (r) { return [esc(r.focus), esc(r.action), r.due ? shortD(r.due) : '', pill(r.status)]; }) +
+      '<div class="p-grid">' + pBox('★ The One Priority', '<p class="p-text">' + esc(d.one || '—') + '</p>') + pBox('❓ Help Needed', '<p class="p-text">' + esc(d.help || '—') + '</p>') + '</div>' +
+      '</div>';
+  }
+  (function renderPins() {
+    var NS = (STAFF.notes || []).filter(function (m) { return m.form && m.data; });
+    var wk = NS.filter(function (m) { return m.form === 'workbook' && toNum(m.date) <= tN && tN <= toNum(m.date) + 6; }).sort(function (a, b) { return a.date < b.date ? 1 : -1; })[0];
+    var rd = NS.filter(function (m) { return m.form === 'round' && m.date === T; });
+    var h = (wk ? wbPin(wk) : '') + rd.map(roundPin).join('');
+    if (h) { document.getElementById('s-pins').innerHTML = h; document.getElementById('s-pin').hidden = false; }
+  })();
 
   function itemHTML(e) {
     return '<li class="s-item k-' + e.kind + '"><span class="s-t">' + tr(e) + '</span><span class="s-b"><b>' + esc(e.title) +

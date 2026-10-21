@@ -65,7 +65,10 @@ def _load(dirpath):
     out = {}
     for f in sorted(glob.glob(os.path.join(dirpath, '*.json'))):
         d = json.load(open(f, encoding='utf-8'))
-        out[os.path.basename(f)[:-5]] = d.get('data', d)
+        # some exports wrap the document as {id, data, version}; a meeting doc has its own 'data' field, so only unwrap the wrapper shape
+        if isinstance(d.get('data'), dict) and 'id' in d and set(d) <= {'id', 'data', 'version', 'updatedAt', 'createdAt'}:
+            d = d['data']
+        out[os.path.basename(f)[:-5]] = d
     return out
 
 def kind_of(title, source=''):
@@ -95,6 +98,12 @@ def note_of(e):
     return ' · '.join(x for x in [e.get('place', ''), e.get('focus', '')] if x)
 
 
+def hk(text):
+    # excluded (personal) items are remembered by a hash, so their wording never sits in the staff page
+    import hashlib
+    return '#' + hashlib.sha256(text.encode('utf-8')).hexdigest()[:16]
+
+
 def memo_from(prev):
     memo = prev.get('memo') or {}
     for k in ('events', 'checks', 'tasks'):
@@ -111,7 +120,7 @@ def prepare(dump, work, pw):
     events, days, tasks = _load(os.path.join(dump, 'events')), _load(os.path.join(dump, 'days')), _load(os.path.join(dump, 'tasks'))
     pending = {'events': [], 'checks': [], 'tasks': []}
     for i, e in events.items():
-        if i in memo['excluded_events']:
+        if i in memo['excluded_events'] or hk(i) in memo['excluded_events']:
             continue
         ko_t, ko_n = e.get('title', ''), note_of(e)
         m = memo['events'].get(i)
@@ -126,7 +135,7 @@ def prepare(dump, work, pw):
         for item in (d.get('focus') or []):
             t = item.get('t', '')
             key = date + '|' + t
-            if key in memo['excluded_checks'] or key in memo['checks']:
+            if key in memo['excluded_checks'] or hk(key) in memo['excluded_checks'] or key in memo['checks']:
                 continue
             pending['checks'].append({'key': key, 'date': date, 'ko': t, 'include': None,
                                       'en': None if KO.search(t) else t})
@@ -134,7 +143,7 @@ def prepare(dump, work, pw):
         if k.get('done'):
             continue
         t = k.get('title', '')
-        if t in memo['tasks']:
+        if t in memo['tasks'] or hk(t) in memo['tasks']:
             continue
         pending['tasks'].append({'id': i, 'ko': t, 'include': True, 'en': None if KO.search(t) else t})
     json.dump(pending, open(os.path.join(work, 'pending.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
@@ -150,19 +159,19 @@ def build(dump, work, pw):
     problems = []
     for p in pending['events']:
         if p['include'] is False:
-            memo['excluded_events'].append(p['id']); memo['events'].pop(p['id'], None); continue
+            memo['excluded_events'].append(hk(p['id'])); memo['events'].pop(p['id'], None); continue
         if p['include'] is not True or not p.get('title'):
             problems.append('event ' + p['id']); continue
         memo['events'][p['id']] = {'ko_title': p['ko_title'], 'ko_note': p['ko_note'], 'title': p['title'], 'note': p.get('note') or ''}
     for p in pending['checks']:
         if p['include'] is False:
-            memo['excluded_checks'].append(p['key']); continue
+            memo['excluded_checks'].append(hk(p['key'])); continue
         if p['include'] is not True or not p.get('en'):
             problems.append('checklist ' + p['key']); continue
         memo['checks'][p['key']] = p['en']
     for p in pending['tasks']:
         if p['include'] is False:
-            memo['tasks'][p['ko']] = None; continue
+            memo['tasks'][hk(p['ko'])] = None; continue
         if not p.get('en'):
             problems.append('task ' + p['ko']); continue
         memo['tasks'][p['ko']] = p['en']
@@ -173,7 +182,7 @@ def build(dump, work, pw):
     out_ev = []
     for i, e in events.items():
         m = memo['events'].get(i)
-        if not m or i in memo['excluded_events']:
+        if not m or i in memo['excluded_events'] or hk(i) in memo['excluded_events']:
             continue
         ev = {'id': i, 'date': e['date'], 'time': e.get('time', ''), 'end': e.get('end', ''),
               'title': m['title'], 'note': m['note'], 'kind': kind_of(e.get('title', '') + ' ' + m['title'], e.get('source', ''))}
@@ -204,7 +213,14 @@ def build(dump, work, pw):
                       'todos': [{'t': x.get('t', ''), 'who': x.get('who', ''), 'due': x.get('due', ''), 'done': bool(x.get('done'))}
                                 for x in (m.get('todos') or []) if x.get('t')],
                       'createdAt': m.get('createdAt', '')})
+        pin = _pin_data(m)
+        if pin:
+            notes[-1]['form'], notes[-1]['data'] = pin
     notes.sort(key=lambda x: (x['date'], x['createdAt']), reverse=True)
+    # migrate older plain-text exclusions to hashes
+    memo['excluded_events'] = sorted(set(x if x.startswith('#') else hk(x) for x in memo['excluded_events']))
+    memo['excluded_checks'] = sorted(set(x if x.startswith('#') else hk(x) for x in memo['excluded_checks']))
+    memo['tasks'] = {(hk(k) if v is None and not k.startswith('#') else k): v for k, v in memo['tasks'].items()}
     # drop memo entries for things no longer in the Daily
     memo['events'] = {k: v for k, v in memo['events'].items() if k in events}
     data = {'events': out_ev, 'checklists': checks, 'tasks': out_tasks, 'notes': notes, 'memo': memo}
@@ -218,6 +234,29 @@ def build(dump, work, pw):
     shell = shell.replace('{{LOGO}}', _logo()).replace('{{PAYLOAD}}', encrypt(plain, pw))
     open(os.path.join(REPO, 'staff.html'), 'w', encoding='utf-8').write(shell)
     print('CHANGED', len(out_ev), 'events,', len(checks), 'checklist days,', len(out_tasks), 'deadlines')
+
+
+def _pin_data(m):
+    """Template content for the 'Today's Meeting' pin on the staff page.
+    Only recent notes (last 21 days) are carried. Leaves out what should not sit on a
+    password page: the Alert Student List (student names), revenue/expense KPIs and
+    Notes for Owner."""
+    form, d = m.get('form') or '', m.get('data') or {}
+    if form not in ('round', 'workbook') or not m.get('date'):
+        return None
+    import datetime
+    if (datetime.date.today() - datetime.date.fromisoformat(m['date'])).days > 21:
+        return None
+    if form == 'round':
+        lists = {k: [{'t': x.get('t', ''), 'done': bool(x.get('done'))} for x in (d.get('lists') or {}).get(k, []) if x.get('t')]
+                 for k in ('shout', 'appts', 'pending', 'tasks', 'urgent')}
+        return form, {'lists': lists, 'alertCount': len([x for x in (d.get('lists') or {}).get('alert', []) if x.get('t')]),
+                      'score': d.get('score', ''), 'summary': d.get('summary', '')}
+    kpi = {k: v for k, v in (d.get('kpi') or {}).items() if k not in ('rev', 'exp')}
+    keep = ('weekOf', 'old', 'wins', 'lessons', 'newb', 'events', 'focus', 'one', 'help', 'mgr', 'mgrDate')
+    out = {k: d.get(k) for k in keep if d.get(k)}
+    out['kpi'] = kpi
+    return form, out
 
 
 def _strip_data(plain):
