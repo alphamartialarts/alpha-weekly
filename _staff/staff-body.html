@@ -150,7 +150,16 @@ body { margin: 0; }
 .p-pill { white-space: nowrap; display: inline-block; font: 700 .62rem/1 var(--display); letter-spacing: .06em; text-transform: uppercase; padding: 3px 6px; border-radius: 999px; border: 1px solid var(--ink); margin: 1px 2px 1px 0; }
 .p-pins { display: grid; gap: 14px; }
 #s-pin[hidden], section[hidden] { display: none !important; }
-@media (max-width: 640px) { .p-grid { grid-template-columns: 1fr; } .p-kv { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) {
+  .p-grid { grid-template-columns: 1fr; } .p-kv { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* tables become stacked cards on phones: no sideways scrolling */
+  .p-t { min-width: 0; }
+  .p-t thead { display: none; }
+  .p-t, .p-t tbody, .p-t tr, .p-t td { display: block; width: 100%; }
+  .p-t tr { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; margin-bottom: 6px; }
+  .p-t td { border: 0; padding: 3px 0; display: grid; grid-template-columns: 6.8em minmax(0, 1fr); gap: 8px; overflow-wrap: anywhere; }
+  .p-t td::before { content: attr(data-l); font: 700 .62rem/1.6 var(--display); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+}
 @media (max-width: 560px) {
   .s-day { min-height: 54px; padding: 4px 2px; align-items: center; }
   .s-num { width: 22px; height: 22px; font-size: .78rem; }
@@ -329,7 +338,7 @@ var STAFF = {{DATA}};
   function pTbl(head, rows, cells) {
     if (!rows || !rows.length) return '<span class="p-none">—</span>';
     return '<div class="p-wrap"><table class="p-t"><thead><tr>' + head.map(function (h) { return '<th>' + h + '</th>'; }).join('') + '</tr></thead><tbody>' +
-      rows.map(function (r) { return '<tr>' + cells(r).map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
+      rows.map(function (r) { return '<tr>' + cells(r).map(function (c, i) { return '<td data-l="' + head[i] + '"><span>' + (c || '—') + '</span></td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
   }
   function pHead(m, label) { return '<div class="p-head"><b>' + esc(m.title) + '</b><span>' + label + '<br>' + esc(longD(m.date)) + '</span></div>' + (m.attendees ? '<p class="p-att">Attended: ' + esc(m.attendees) + '</p>' : ''); }
   function roundPin(m) {
