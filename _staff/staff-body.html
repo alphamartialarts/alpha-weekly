@@ -150,12 +150,18 @@ body { margin: 0; }
 .p-pill { white-space: nowrap; display: inline-block; font: 700 .62rem/1 var(--display); letter-spacing: .06em; text-transform: uppercase; padding: 3px 6px; border-radius: 999px; border: 1px solid var(--ink); margin: 1px 2px 1px 0; }
 .p-pins { display: grid; gap: 14px; }
 .p-full { display: grid; gap: 10px; }
+.p-pane { display: grid; gap: 14px; }
+.p-tabs { display: none; }
+.p-tabs button { flex: 1; border: 0; background: transparent; color: var(--ink); padding: 11px 8px; border-radius: 999px; font: 800 .86rem/1 var(--display); text-transform: uppercase; letter-spacing: .04em; cursor: pointer; }
+.p-tabs button[aria-selected="true"] { background: var(--ink); color: var(--paper); }
 .p-sum, .p-more { display: none; }
 .p-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .p-chip { background: var(--paper); border-radius: 999px; padding: 5px 10px; font-size: .82rem; font-weight: 600; color: var(--muted); }
 .p-chip b { color: var(--ink); font-weight: 800; }
 .p-more { width: 100%; border: 1.5px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 11px 14px; font: 800 .85rem/1 var(--display); text-transform: uppercase; letter-spacing: .05em; cursor: pointer; }
 @media (max-width: 640px) {
+  .p-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
+  .p-pane[data-off] { display: none; }
   .p-sum { display: grid; gap: 10px; }
   .p-full { display: none; }
   .p-more { display: block; }
@@ -395,8 +401,19 @@ var STAFF = {{DATA}};
     var wk = NS.filter(function (m) { return m.form === 'workbook' && toNum(m.date) <= tN && tN <= toNum(m.date) + 6; }).sort(function (a, b) { return a.date < b.date ? 1 : -1; })[0];
     var rd = NS.filter(function (m) { return m.form === 'round' && m.date === T; });
     var h = (wk ? wbPin(wk) : '') + rd.map(roundPin).join('');
+    if (wk && rd.length) {
+      // phones: one tab at a time (Today's Round first); computers: both, no tabs
+      h = '<div class="p-tabs" role="tablist"><button type="button" role="tab" data-ptab="round" aria-selected="true">Today’s Round</button><button type="button" role="tab" data-ptab="weekly" aria-selected="false">Weekly Meeting</button></div>' +
+        '<div class="p-pane" data-pane="round">' + rd.map(roundPin).join('') + '</div><div class="p-pane" data-pane="weekly" data-off="1">' + wbPin(wk) + '</div>';
+    }
     if (h) { document.getElementById('s-pins').innerHTML = h; document.getElementById('s-pin').hidden = false; }
     document.getElementById('s-pins').addEventListener('click', function (e) {
+      var t = e.target.closest('[data-ptab]');
+      if (t) {
+        Array.prototype.forEach.call(document.querySelectorAll('[data-ptab]'), function (x) { x.setAttribute('aria-selected', x === t ? 'true' : 'false'); });
+        Array.prototype.forEach.call(document.querySelectorAll('.p-pane'), function (x) { if (x.dataset.pane === t.dataset.ptab) delete x.dataset.off; else x.dataset.off = '1'; });
+        return;
+      }
       var b = e.target.closest('.p-more'); if (!b) return;
       var sh = b.closest('.p-sheet'), open = sh.classList.toggle('open');
       b.setAttribute('aria-expanded', open ? 'true' : 'false');
