@@ -35,3 +35,9 @@ Meeting notes are written in the "Alpha Staff Notes" artifact
 (https://claude.ai/artifact/19kHZywi5AGuEnoVQLsBjC, collection `meetings`).
 Before `build`, export that collection into `DUMP_DIR/meetings/` so the staff
 page shows the latest notes. Notes are copied as written (not translated).
+
+## Today's Meeting pin (added Oct 21, 2026)
+- Export Staff Notes `meetings` (https://claude.ai/artifact/19kHZywi5AGuEnoVQLsBjC) into DUMP/meetings before `build`.
+- Notes with form `round` (Daily Meeting) show on the staff page only on their own date; form `workbook` (Weekly Staff Meeting) shows for 7 days from its date.
+- Only notes from the last 21 days carry template data. Left out on purpose: Alert Student List names (count only), revenue/expense KPIs, Notes for Owner.
+- Personal (excluded) items are remembered as hashes (`hk()`), so their wording never appears in the page.
