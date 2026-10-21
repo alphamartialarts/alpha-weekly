@@ -365,24 +365,24 @@ footer .contact span { user-select: all; }
         </div>
       </div>
 
-      <article class="promo" data-start="2026-12-01" data-end="2026-12-31">
-        <a class="flyer" href="kick-into-december.jpg" target="_blank" rel="noopener">
-          <img src="kick-into-december.jpg" alt="Kick Into December flyer: Complimentary Family TKD Training at Alpha Martial Arts" width="1000" height="1285" loading="lazy">
+      <article class="promo" data-start="2026-11-01" data-end="2026-12-31">
+        <a class="flyer" href="family-training-nov-dec.jpg" target="_blank" rel="noopener">
+          <img src="family-training-nov-dec.jpg" alt="Kick Into Winter flyer: we invite families all November and December. Complimentary Family TKD Training at Alpha Martial Arts. Ask the front desk how to get started." width="1000" height="1285" loading="lazy">
           <span>Tap to view full flyer</span>
         </a>
         <div class="promo-body">
           <span class="tag status promo-status" hidden></span>
-          <p class="promo-when">All December · Dec 1–31</p>
-          <h3>Complimentary Family Training All December!</h3>
-          <p>Every Alpha student’s parents, brothers, and sisters are invited to join taekwondo classes, complimentary, from <b>December 1–31</b>.</p>
-          <p class="promo-sub">Kick Into December · Train together. Grow stronger.</p>
+          <p class="promo-when">November &amp; December · Nov 1 – Dec 31</p>
+          <h3>Complimentary Family Training All November &amp; December!</h3>
+          <p>Every Alpha student’s parents, brothers, and sisters are invited to join taekwondo classes, complimentary, from <b>November 1 to December 31</b>.</p>
+          <p class="promo-sub">Kick Into Winter · Train together. Grow stronger.</p>
           <ul class="why">
             <li><b>Quality family time</b>Build stronger bonds.</li>
             <li><b>Better health</b>Stay active together.</li>
             <li><b>Less stress, more confidence</b>Build focus and confidence.</li>
             <li><b>A stronger future</b>Create lasting memories.</li>
           </ul>
-          <p class="promo-ask">Questions? Ask at the front desk or email <span class="email">info@amatkdo.com</span>.</p>
+          <p class="promo-ask">Ask the front desk how to get started, or email <span class="email">info@amatkdo.com</span>.</p>
         </div>
       </article>
 
@@ -550,7 +550,7 @@ function refreshDates() {
     tag.hidden = false;
     c.classList.toggle('past', t > e);
   });
-  // December promo: countdown, "happening now", hide after it ends
+  // Family training promo (Nov–Dec): countdown, "happening now", hide after it ends
   Array.prototype.forEach.call(document.querySelectorAll('.promo[data-start]'), function (p) {
     var s = dayNum(p.dataset.start), e = dayNum(p.dataset.end);
     var tag = p.querySelector('.promo-status');
