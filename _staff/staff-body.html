@@ -149,6 +149,19 @@ body { margin: 0; }
 .p-t td, .p-t th { overflow-wrap: normal; word-break: normal; }
 .p-pill { white-space: nowrap; display: inline-block; font: 700 .62rem/1 var(--display); letter-spacing: .06em; text-transform: uppercase; padding: 3px 6px; border-radius: 999px; border: 1px solid var(--ink); margin: 1px 2px 1px 0; }
 .p-pins { display: grid; gap: 14px; }
+.p-full { display: grid; gap: 10px; }
+.p-sum, .p-more { display: none; }
+.p-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.p-chip { background: var(--paper); border-radius: 999px; padding: 5px 10px; font-size: .82rem; font-weight: 600; color: var(--muted); }
+.p-chip b { color: var(--ink); font-weight: 800; }
+.p-more { width: 100%; border: 1.5px solid var(--ink); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 11px 14px; font: 800 .85rem/1 var(--display); text-transform: uppercase; letter-spacing: .05em; cursor: pointer; }
+@media (max-width: 640px) {
+  .p-sum { display: grid; gap: 10px; }
+  .p-full { display: none; }
+  .p-more { display: block; }
+  .p-sheet.open .p-full { display: grid; }
+  .p-sheet.open .p-sum { display: none; }
+}
 #s-pin[hidden], section[hidden] { display: none !important; }
 @media (max-width: 640px) {
   .p-grid { grid-template-columns: 1fr; } .p-kv { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -343,20 +356,31 @@ var STAFF = {{DATA}};
   function pHead(m, label) { return '<div class="p-head"><b>' + esc(m.title) + '</b><span>' + label + '<br>' + esc(longD(m.date)) + '</span></div>' + (m.attendees ? '<p class="p-att">Attended: ' + esc(m.attendees) + '</p>' : ''); }
   function roundPin(m) {
     var d = m.data || {}, L = d.lists || {};
-    return '<div class="p-sheet">' + pHead(m, 'Daily Meeting · Today') + '<div class="p-grid">' +
+    var cnt = function (a) { a = a || []; var dn = a.filter(function (x) { return x.done; }).length; return a.length ? dn + '/' + a.length : '0'; };
+    var chips = [['Shout outs', (L.shout || []).length], ['Appointments', cnt(L.appts)], ['Pending', cnt(L.pending)], ['Tasks', cnt(L.tasks)], ['Alert', d.alertCount || 0]]
+      .map(function (c) { return '<span class="p-chip"><b>' + c[1] + '</b> ' + c[0] + '</span>'; }).join('');
+    var sum = '<div class="p-sum"><div class="p-chips">' + chips + (d.score ? '<span class="p-chip"><b>' + esc(d.score) + '</b> Score</span>' : '') + '</div>' +
+      ((L.urgent || []).length ? pBox('⚠ Urgency', pList(L.urgent), 'urg') : '') + pBox('Today’s Task', pList(L.tasks)) +
+      (d.summary ? pBox('Summary', '<p class="p-text">' + esc(d.summary) + '</p>') : '') + '</div>';
+    return '<div class="p-sheet">' + pHead(m, 'Daily Meeting · Today') + sum + '<div class="p-full"><div class="p-grid">' +
       pBox('Shout Out for Team / Leaders / Students', pList(L.shout)) + pBox('Today’s Appointment', pList(L.appts)) +
       pBox('Pending / New Issues', pList(L.pending)) + pBox('Today’s Task', pList(L.tasks)) +
       pBox('Alert Student List', '<span class="p-none">' + (d.alertCount ? d.alertCount + ' student' + (d.alertCount > 1 ? 's' : '') + ' on the list. Names are in Staff Notes only.' : '—') + '</span>') +
       pBox('Urgency', pList(L.urgent), 'urg') + pBox('KPI: Total Score', '<div class="p-score">' + esc(d.score || '—') + '</div>') +
-      '</div>' + (d.summary ? pBox('Summary', '<p class="p-text">' + esc(d.summary) + '</p>') : '') + '</div>';
+      '</div>' + (d.summary ? pBox('Summary', '<p class="p-text">' + esc(d.summary) + '</p>') : '') + '</div>' + moreBtn('Today’s Round') + '</div>';
   }
+  function moreBtn(what) { return '<button type="button" class="p-more" aria-expanded="false" data-what="' + what + '">Show full ' + what + ' ▾</button>'; }
   function wbPin(m) {
     var d = m.data || {}, k = d.kpi || {};
     var KP = [['active', 'Total Active Students'], ['newst', 'New Students'], ['cancel', 'Cancels / Drops'], ['leads', 'Leads Generated'], ['booked', 'Intro Trials Booked'], ['showed', 'Trials Showed Up'], ['rate', 'Show-Up Rate'], ['upg', 'Program Upgrades']];
     var rate = k.rate || (parseFloat(k.booked) > 0 && k.showed ? Math.round(parseFloat(k.showed) / parseFloat(k.booked) * 100) + '' : '');
     var pill = function (v) { return v ? '<span class="p-pill">' + esc(v) + '</span>' : ''; };
     var li = function (a, mk) { return a && a.length ? '<ul class="p-list plain">' + a.map(function (x) { return '<li><span>' + mk + ' ' + esc(x.t) + '</span></li>'; }).join('') + '</ul>' : '<span class="p-none">—</span>'; };
-    return '<div class="p-sheet">' + pHead(m, 'Weekly Staff Meeting · This week') +
+    var sum = '<div class="p-sum">' + pBox('★ The One Priority', '<p class="p-text">' + esc(d.one || '—') + '</p>') +
+      pBox('Top 3 Focus', d.focus && d.focus.length ? '<ul class="p-list plain">' + d.focus.map(function (r) { return '<li><span><b>' + esc(r.focus) + '</b>' + (r.action ? ' — ' + esc(r.action) : '') + (r.due ? ' · ' + shortD(r.due) : '') + (r.status ? ' ' + pill(r.status) : '') + '</span></li>'; }).join('') + '</ul>' : '<span class="p-none">—</span>') +
+      ((d.newb || []).length ? pBox('New tasks this week', '<ul class="p-list plain">' + d.newb.map(function (r) { return '<li><span>' + esc(r.topic) + (r.who ? ' <b>· ' + esc(r.who) + '</b>' : '') + (r.due ? ' · ' + shortD(r.due) : '') + '</span></li>'; }).join('') + '</ul>') : '') +
+      (d.help ? pBox('❓ Help Needed', '<p class="p-text">' + esc(d.help) + '</p>') : '') + '</div>';
+    return '<div class="p-sheet">' + pHead(m, 'Weekly Staff Meeting · This week') + sum + '<div class="p-full">' +
       '<p class="p-h">KPIs</p><div class="p-kv">' + KP.map(function (x) { var v = x[0] === 'rate' ? rate : k[x[0]]; return '<div><b>' + x[1] + '</b><span>' + (v ? esc(v + (x[0] === 'rate' ? '%' : '')) : '—') + '</span></div>'; }).join('') + '</div>' +
       '<p class="p-h">Old Business</p>' + pTbl(['Task / issue', 'How it was handled', 'Status'], d.old, function (r) { return [esc(r.task), esc(r.how), pill(r.status)]; }) +
       '<p class="p-h">Wins & Lessons</p><div class="p-grid"><div>' + li(d.wins, '★') + '</div><div>' + li(d.lessons, '▲') + '</div></div>' +
@@ -364,7 +388,7 @@ var STAFF = {{DATA}};
       '<p class="p-h">Upcoming Events & Campaigns</p>' + pTbl(['Date', 'Event & audience', 'Purpose', 'Goal'], d.events, function (r) { return [r.date ? shortD(r.date) : '', esc(r.name), (r.lead ? pill('Lead Gen') : '') + (r.ret ? pill('Retention') : '') + (r.rev ? pill('Revenue') : ''), esc(r.goal)]; }) +
       '<p class="p-h">Top 3 Focus & Action Plan</p>' + pTbl(['Focus area', 'Action step', 'Due', 'Status'], d.focus, function (r) { return [esc(r.focus), esc(r.action), r.due ? shortD(r.due) : '', pill(r.status)]; }) +
       '<div class="p-grid">' + pBox('★ The One Priority', '<p class="p-text">' + esc(d.one || '—') + '</p>') + pBox('❓ Help Needed', '<p class="p-text">' + esc(d.help || '—') + '</p>') + '</div>' +
-      '</div>';
+      '</div>' + moreBtn('Weekly Workbook') + '</div>';
   }
   (function renderPins() {
     var NS = (STAFF.notes || []).filter(function (m) { return m.form && m.data; });
@@ -372,6 +396,13 @@ var STAFF = {{DATA}};
     var rd = NS.filter(function (m) { return m.form === 'round' && m.date === T; });
     var h = (wk ? wbPin(wk) : '') + rd.map(roundPin).join('');
     if (h) { document.getElementById('s-pins').innerHTML = h; document.getElementById('s-pin').hidden = false; }
+    document.getElementById('s-pins').addEventListener('click', function (e) {
+      var b = e.target.closest('.p-more'); if (!b) return;
+      var sh = b.closest('.p-sheet'), open = sh.classList.toggle('open');
+      b.setAttribute('aria-expanded', open ? 'true' : 'false');
+      b.textContent = (open ? 'Show summary ▴' : 'Show full ' + b.dataset.what + ' ▾');
+      if (!open) sh.scrollIntoView({ block: 'start' });
+    });
   })();
 
   function itemHTML(e) {
