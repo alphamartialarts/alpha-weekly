@@ -149,6 +149,7 @@ body { margin: 0; }
 .p-t td, .p-t th { overflow-wrap: normal; word-break: normal; }
 .p-pill { white-space: nowrap; display: inline-block; font: 700 .62rem/1 var(--display); letter-spacing: .06em; text-transform: uppercase; padding: 3px 6px; border-radius: 999px; border: 1px solid var(--ink); margin: 1px 2px 1px 0; }
 .p-pins { display: grid; gap: 14px; }
+#s-pin[hidden], section[hidden] { display: none !important; }
 @media (max-width: 640px) { .p-grid { grid-template-columns: 1fr; } .p-kv { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) {
   .s-day { min-height: 54px; padding: 4px 2px; align-items: center; }
@@ -192,6 +193,28 @@ body { margin: 0; }
       <div class="p-pins" id="s-pins"></div>
       <a class="s-write" href="https://claude.ai/artifact/19kHZywi5AGuEnoVQLsBjC" target="_blank" rel="noopener">✎ Edit in Staff Notes</a>
       <p class="s-note" style="margin:0">After editing, ask Claude to update Staff Only so this page shows the change.</p>
+    </section>
+
+    <section aria-labelledby="s-h-check">
+      <h2 id="s-h-check">Daily Checklist</h2>
+      <p class="s-note">Each staff member checks off their own daily list: Done, or N/A if it doesn’t apply today.</p>
+      <a class="s-write" href="https://claude.ai/artifact/6kMzNREUoMQugvutLoVSUe" target="_blank" rel="noopener">Open my checklist <span aria-hidden="true">→</span></a>
+      <p class="s-note" style="margin:0">Needs a Claude account with access. Pick your name the first time; your phone remembers it.</p>
+    </section>
+
+    <section aria-labelledby="s-h-notes">
+      <h2 id="s-h-notes">Meeting Notes</h2>
+      <p class="s-note">What we talked about, what we decided, and who is doing what.</p>
+      <a class="s-write" href="https://claude.ai/artifact/19kHZywi5AGuEnoVQLsBjC" target="_blank" rel="noopener">Write or edit notes <span aria-hidden="true">→</span></a>
+      <p class="s-note" style="margin:0">Writing notes and checking off to-dos needs a Claude account with access. Everyone can read them here.</p>
+      <div class="s-card">
+        <div class="s-search">
+          <input id="s-nq" type="search" placeholder="Search notes, to-dos, names, or dates" aria-label="Search meeting notes" autocomplete="off">
+        </div>
+        <div id="s-nopen"></div>
+        <div id="s-nlist" class="s-nlist"></div>
+        <button type="button" class="s-btn" id="s-nmore" hidden>Show more</button>
+      </div>
     </section>
 
     <section aria-labelledby="s-h-cal">
@@ -245,27 +268,9 @@ body { margin: 0; }
       <ul class="s-dead" id="s-dead"></ul>
     </section>
 
-    <section aria-labelledby="s-h-check">
-      <h2 id="s-h-check">Daily Checklist</h2>
-      <p class="s-note">Each staff member checks off their own daily list: Done, or N/A if it doesn’t apply today.</p>
-      <a class="s-write" href="https://claude.ai/artifact/6kMzNREUoMQugvutLoVSUe" target="_blank" rel="noopener">Open my checklist <span aria-hidden="true">→</span></a>
-      <p class="s-note" style="margin:0">Needs a Claude account with access. Pick your name the first time; your phone remembers it.</p>
-    </section>
 
-    <section aria-labelledby="s-h-notes">
-      <h2 id="s-h-notes">Meeting Notes</h2>
-      <p class="s-note">What we talked about, what we decided, and who is doing what.</p>
-      <a class="s-write" href="https://claude.ai/artifact/19kHZywi5AGuEnoVQLsBjC" target="_blank" rel="noopener">Write or edit notes <span aria-hidden="true">→</span></a>
-      <p class="s-note" style="margin:0">Writing notes and checking off to-dos needs a Claude account with access. Everyone can read them here.</p>
-      <div class="s-card">
-        <div class="s-search">
-          <input id="s-nq" type="search" placeholder="Search notes, to-dos, names, or dates" aria-label="Search meeting notes" autocomplete="off">
-        </div>
-        <div id="s-nopen"></div>
-        <div id="s-nlist" class="s-nlist"></div>
-        <button type="button" class="s-btn" id="s-nmore" hidden>Show more</button>
-      </div>
-    </section>
+
+
 
     <div class="s-divider">
       <b>Parent Newsletter</b>
