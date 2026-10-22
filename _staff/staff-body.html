@@ -149,6 +149,9 @@ body { margin: 0; }
 .p-t td, .p-t th { overflow-wrap: normal; word-break: normal; }
 .p-pill { white-space: nowrap; display: inline-block; font: 700 .62rem/1 var(--display); letter-spacing: .06em; text-transform: uppercase; padding: 3px 6px; border-radius: 999px; border: 1px solid var(--ink); margin: 1px 2px 1px 0; }
 .p-pins { display: grid; gap: 14px; }
+.p-slogan { display: flex; align-items: center; gap: 12px; }
+.p-slogan i { flex: 1; height: 8px; transform: skewX(-36deg); background: linear-gradient(90deg, var(--blue) 0 50%, var(--red) 50% 100%); }
+.p-slogan span { font: 900 italic 1.2rem/1 var(--display); text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
 .p-full { display: grid; gap: 10px; }
 .p-pane { display: grid; gap: 14px; }
 .p-tabs { display: none; }
@@ -360,6 +363,7 @@ var STAFF = {{DATA}};
       rows.map(function (r) { return '<tr>' + cells(r).map(function (c, i) { return '<td data-l="' + head[i] + '"><span>' + (c || '—') + '</span></td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
   }
   function pHead(m, label) { return '<div class="p-head"><b>' + esc(m.title) + '</b><span>' + label + '<br>' + esc(longD(m.date)) + '</span></div>' + (m.attendees ? '<p class="p-att">Attended: ' + esc(m.attendees) + '</p>' : ''); }
+  var P_SLOGAN = '<div class="p-slogan"><i></i><span>Get the job done!</span><i></i></div>';
   function roundPin(m) {
     var d = m.data || {}, L = d.lists || {};
     var cnt = function (a) { a = a || []; var dn = a.filter(function (x) { return x.done; }).length; return a.length ? dn + '/' + a.length : '0'; };
@@ -368,7 +372,7 @@ var STAFF = {{DATA}};
     var sum = '<div class="p-sum"><div class="p-chips">' + chips + (d.score ? '<span class="p-chip"><b>' + esc(d.score) + '</b> Score</span>' : '') + '</div>' +
       ((L.urgent || []).length ? pBox('⚠ Urgency', pList(L.urgent), 'urg') : '') + pBox('Today’s Task', pList(L.tasks)) +
       (d.summary ? pBox('Summary', '<p class="p-text">' + esc(d.summary) + '</p>') : '') + '</div>';
-    return '<div class="p-sheet">' + pHead(m, 'Daily Meeting · Today') + sum + '<div class="p-full"><div class="p-grid">' +
+    return '<div class="p-sheet">' + pHead(m, 'Daily Meeting · Today') + P_SLOGAN + sum + '<div class="p-full"><div class="p-grid">' +
       pBox('Shout Out for Team / Leaders / Students', pList(L.shout)) + pBox('Today’s Appointment', pList(L.appts)) +
       pBox('Pending / New Issues', pList(L.pending)) + pBox('Today’s Task', pList(L.tasks)) +
       pBox('Alert Student List', '<span class="p-none">' + (d.alertCount ? d.alertCount + ' student' + (d.alertCount > 1 ? 's' : '') + ' on the list. Names are in Staff Notes only.' : '—') + '</span>') +
@@ -386,7 +390,7 @@ var STAFF = {{DATA}};
       pBox('Top 3 Focus', d.focus && d.focus.length ? '<ul class="p-list plain">' + d.focus.map(function (r) { return '<li><span><b>' + esc(r.focus) + '</b>' + (r.action ? ' — ' + esc(r.action) : '') + (r.due ? ' · ' + shortD(r.due) : '') + (r.status ? ' ' + pill(r.status) : '') + '</span></li>'; }).join('') + '</ul>' : '<span class="p-none">—</span>') +
       ((d.newb || []).length ? pBox('New tasks this week', '<ul class="p-list plain">' + d.newb.map(function (r) { return '<li><span>' + esc(r.topic) + (r.who ? ' <b>· ' + esc(r.who) + '</b>' : '') + (r.due ? ' · ' + shortD(r.due) : '') + '</span></li>'; }).join('') + '</ul>') : '') +
       (d.help ? pBox('❓ Help Needed', '<p class="p-text">' + esc(d.help) + '</p>') : '') + '</div>';
-    return '<div class="p-sheet">' + pHead(m, 'Weekly Staff Meeting · This week') + sum + '<div class="p-full">' +
+    return '<div class="p-sheet">' + pHead(m, 'Weekly Staff Meeting · This week') + P_SLOGAN + sum + '<div class="p-full">' +
       '<p class="p-h">KPIs</p><div class="p-kv">' + KP.map(function (x) { var v = x[0] === 'rate' ? rate : k[x[0]]; return '<div><b>' + x[1] + '</b><span>' + (v ? esc(v + (x[0] === 'rate' ? '%' : '')) : '—') + '</span></div>'; }).join('') + '</div>' +
       '<p class="p-h">Old Business</p>' + pTbl(['Task / issue', 'How it was handled', 'Status'], d.old, function (r) { return [esc(r.task), esc(r.how), pill(r.status)]; }) +
       '<p class="p-h">Wins & Lessons</p><div class="p-grid"><div>' + li(d.wins, '★') + '</div><div>' + li(d.lessons, '▲') + '</div></div>' +
