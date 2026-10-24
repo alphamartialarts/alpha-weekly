@@ -130,6 +130,8 @@ h2::before {
 .change { border-left: 5px solid var(--blue); background: var(--blue-soft); border-radius: 6px; padding: 10px 14px; }
 .change strong { display: block; font-family: var(--display); font-weight: 800; font-style: italic; text-transform: uppercase; letter-spacing: .04em; color: var(--blue); }
 .change p { margin: 2px 0 0; }
+.change.spar { border-left-color: var(--red); background: var(--red-soft); }
+.change.spar strong { color: var(--red); }
 .makeup { border-left-color: var(--red); background: var(--red-soft); }
 .makeup strong { color: var(--red); }
 .makeup-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
@@ -285,6 +287,9 @@ footer .contact span { user-select: all; }
 
     <section aria-labelledby="h-week">
       <h2 id="h-week">This Week &amp; Next Week</h2>
+
+      <!-- Sparring reminder: filled in automatically from the curriculum cycle (Weeks 1 & 4 are sparring weeks) -->
+      <div class="change spar" id="spar-note" hidden><strong></strong><p></p></div>
 
       <div class="change" data-until="2026-10-24">
         <strong>No Saturday Beast or Beginner’s classes · Oct 17 &amp; Oct 24</strong>
@@ -588,6 +593,21 @@ function refreshDates() {
     var st = cycleState(t, dayNum(cy.dataset.anchor), +cy.dataset.anchorWeek - 1, weeks.length);
     var note = cy.parentNode.querySelector('.skipnote');
     if (note) note.hidden = !st.skip;
+    // Weeks 1 & 4 are sparring weeks: remind INT level and above to bring gear.
+    var spar = document.getElementById('spar-note');
+    if (spar && cy.id === 'cycle') {
+      var SP = [0, 3], dow = new Date(t * 864e5).getUTCDay();
+      // Mon–Sat: this week's reminder; Fri–Sun: heads-up for next week (Sunday looks ahead only).
+      var curSp = dow !== 0 && SP.indexOf(st.cur) !== -1, nextSp = SP.indexOf(st.next) !== -1 && (dow >= 5 || dow === 0);
+      spar.hidden = !(curSp || nextSp);
+      if (curSp) {
+        spar.querySelector('strong').textContent = 'Sparring Week · Week ' + (st.cur + 1);
+        spar.querySelector('p').innerHTML = '<b>INT level and above:</b> please bring your <b>sparring gear</b> to every class this week.';
+      } else if (nextSp) {
+        spar.querySelector('strong').textContent = 'Next week is Sparring Week';
+        spar.querySelector('p').innerHTML = '<b>INT level and above:</b> get your <b>sparring gear</b> ready and bring it to every class next week.';
+      }
+    }
     Array.prototype.forEach.call(weeks, function (w, i) {
       var on = i === st.cur, nx = i === st.next;
       w.classList.toggle('cur', on);
