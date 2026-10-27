@@ -171,7 +171,7 @@ body { margin: 0; }
   .p-sheet.open .p-full { display: grid; }
   .p-sheet.open .p-sum { display: none; }
 }
-#s-pin[hidden], section[hidden] { display: none !important; }
+#s-pin[hidden], section[hidden], .s-card[hidden] { display: none !important; }
 @media (max-width: 640px) {
   .p-grid { grid-template-columns: 1fr; } .p-kv { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   /* tables become stacked cards on phones: no sideways scrolling */
@@ -237,8 +237,9 @@ body { margin: 0; }
       <h2 id="s-h-notes">Meeting Notes</h2>
       <p class="s-note">What we talked about, what we decided, and who is doing what.</p>
       <a class="s-write" href="https://claude.ai/artifact/19kHZywi5AGuEnoVQLsBjC" target="_blank" rel="noopener">Write or edit notes <span aria-hidden="true">→</span></a>
-      <p class="s-note" style="margin:0">Writing notes and checking off to-dos needs a Claude account with access. Everyone can read them here.</p>
-      <div class="s-card">
+      <p class="s-note" style="margin:0">Needs a Claude account with access.</p>
+      <!-- Notes list hidden from the Staff Only page (Master Woo, Oct 26). Kept in the markup so the script runs unchanged. -->
+      <div class="s-card" hidden>
         <div class="s-search">
           <input id="s-nq" type="search" placeholder="Search notes, to-dos, names, or dates" aria-label="Search meeting notes" autocomplete="off">
         </div>
