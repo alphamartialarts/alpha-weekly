@@ -253,7 +253,7 @@ def _pin_data(m):
         return form, {'lists': lists, 'alertCount': len([x for x in (d.get('lists') or {}).get('alert', []) if x.get('t')]),
                       'score': d.get('score', ''), 'summary': d.get('summary', '')}
     kpi = {k: v for k, v in (d.get('kpi') or {}).items() if k not in ('rev', 'exp')}
-    keep = ('weekOf', 'summary', 'old', 'wins', 'lessons', 'newb', 'events', 'focus', 'one', 'help', 'mgr', 'mgrDate')
+    keep = ('weekOf', 'old', 'wins', 'lessons', 'newb', 'events', 'focus', 'one', 'help', 'mgr', 'mgrDate')
     out = {k: d.get(k) for k in keep if d.get(k)}
     out['kpi'] = kpi
     return form, out
