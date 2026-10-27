@@ -386,11 +386,12 @@ var STAFF = {{DATA}};
     var rate = k.rate || (parseFloat(k.booked) > 0 && k.showed ? Math.round(parseFloat(k.showed) / parseFloat(k.booked) * 100) + '' : '');
     var pill = function (v) { return v ? '<span class="p-pill">' + esc(v) + '</span>' : ''; };
     var li = function (a, mk) { return a && a.length ? '<ul class="p-list plain">' + a.map(function (x) { return '<li><span>' + mk + ' ' + esc(x.t) + '</span></li>'; }).join('') + '</ul>' : '<span class="p-none">—</span>'; };
-    var sum = '<div class="p-sum">' + pBox('★ The One Priority', '<p class="p-text">' + esc(d.one || '—') + '</p>') +
+    var msum = d.summary ? pBox('Meeting Summary', '<p class="p-text" style="white-space:pre-wrap">' + esc(d.summary) + '</p>') : '';
+    var sum = '<div class="p-sum">' + msum + pBox('★ The One Priority', '<p class="p-text">' + esc(d.one || '—') + '</p>') +
       pBox('Top 3 Focus', d.focus && d.focus.length ? '<ul class="p-list plain">' + d.focus.map(function (r) { return '<li><span><b>' + esc(r.focus) + '</b>' + (r.action ? ' — ' + esc(r.action) : '') + (r.due ? ' · ' + shortD(r.due) : '') + (r.status ? ' ' + pill(r.status) : '') + '</span></li>'; }).join('') + '</ul>' : '<span class="p-none">—</span>') +
       ((d.newb || []).length ? pBox('New tasks this week', '<ul class="p-list plain">' + d.newb.map(function (r) { return '<li><span>' + esc(r.topic) + (r.who ? ' <b>· ' + esc(r.who) + '</b>' : '') + (r.due ? ' · ' + shortD(r.due) : '') + '</span></li>'; }).join('') + '</ul>') : '') +
       (d.help ? pBox('❓ Help Needed', '<p class="p-text">' + esc(d.help) + '</p>') : '') + '</div>';
-    return '<div class="p-sheet">' + pHead(m, 'Weekly Staff Meeting · This week') + P_SLOGAN + sum + '<div class="p-full">' +
+    return '<div class="p-sheet">' + pHead(m, 'Weekly Staff Meeting · This week') + P_SLOGAN + sum + '<div class="p-full">' + (msum ? '<div class="p-dsk">' + msum + '</div>' : '') +
       '<p class="p-h">KPIs</p><div class="p-kv">' + KP.map(function (x) { var v = x[0] === 'rate' ? rate : k[x[0]]; return '<div><b>' + x[1] + '</b><span>' + (v ? esc(v + (x[0] === 'rate' ? '%' : '')) : '—') + '</span></div>'; }).join('') + '</div>' +
       '<p class="p-h">Old Business</p>' + pTbl(['Task / issue', 'How it was handled', 'Status'], d.old, function (r) { return [esc(r.task), esc(r.how), pill(r.status)]; }) +
       '<p class="p-h">Wins & Lessons</p><div class="p-grid"><div>' + li(d.wins, '★') + '</div><div>' + li(d.lessons, '▲') + '</div></div>' +
