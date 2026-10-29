@@ -129,6 +129,8 @@ body { margin: 0; }
 .p-list li::before { content: ""; width: 12px; height: 12px; margin-top: 4px; border: 2px solid var(--ink); border-radius: 3px; }
 .p-list li.done::before { background: var(--ink); }
 .p-list.plain li { grid-template-columns: minmax(0, 1fr); }
+.p-age { display: inline-block; margin-left: 6px; font-size: .72rem; font-weight: 800; padding: 2px 7px; border-radius: 999px; background: #fff4de; color: #8a5a00; white-space: nowrap; }
+.p-age.late { background: #fbe9ea; color: #d12028; }
 .p-list.plain li::before { display: none; }
 .p-head span { margin-left: auto; }
 .p-list li.done span { text-decoration: line-through; color: var(--muted); }
@@ -356,7 +358,9 @@ var STAFF = {{DATA}};
   /* ---------- Today's Meeting pin ---------- */
   function longD(s) { var p = parts(s); return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][wd(s)] + ', ' + MONL[p.m] + ' ' + p.d + ', ' + p.y; }
   function shortD(s) { var p = parts(s); return MON[p.m] + ' ' + p.d; }
-  function pList(a) { return a && a.length ? '<ul class="p-list">' + a.map(function (x) { return '<li class="' + (x.done ? 'done' : '') + '"><span>' + esc(x.t) + '</span></li>'; }).join('') + '</ul>' : '<span class="p-none">—</span>'; }
+  // carried-over items show how many days they have been open ("↻ 2 days overdue")
+  function pAge(x, date) { if (!x.since || !date || x.done) return ''; var n = Math.round((Date.parse(date) - Date.parse(x.since)) / 864e5); return n >= 1 ? ' <span class="p-age' + (n >= 3 ? ' late' : '') + '">↻ ' + n + (n === 1 ? ' day' : ' days') + ' overdue</span>' : ''; }
+  function pList(a, date) { return a && a.length ? '<ul class="p-list">' + a.map(function (x) { return '<li class="' + (x.done ? 'done' : '') + '"><span>' + esc(x.t) + pAge(x, date) + '</span></li>'; }).join('') + '</ul>' : '<span class="p-none">—</span>'; }
   function pBox(title, inner, cls) { return '<div class="p-box"><h5' + (cls ? ' class="' + cls + '"' : '') + '>' + title + '</h5>' + inner + '</div>'; }
   function pTbl(head, rows, cells) {
     if (!rows || !rows.length) return '<span class="p-none">—</span>';
@@ -371,13 +375,13 @@ var STAFF = {{DATA}};
     var chips = [['Shout outs', (L.shout || []).length], ['Appointments', cnt(L.appts)], ['Pending', cnt(L.pending)], ['Tasks', cnt(L.tasks)], ['Alert', d.alertCount || 0]]
       .map(function (c) { return '<span class="p-chip"><b>' + c[1] + '</b> ' + c[0] + '</span>'; }).join('');
     var sum = '<div class="p-sum"><div class="p-chips">' + chips + (d.score ? '<span class="p-chip"><b>' + esc(d.score) + '</b> Score</span>' : '') + '</div>' +
-      ((L.urgent || []).length ? pBox('⚠ Urgency', pList(L.urgent), 'urg') : '') + pBox('Today’s Task', pList(L.tasks)) +
+      ((L.urgent || []).length ? pBox('⚠ Urgency', pList(L.urgent, m.date), 'urg') : '') + pBox('Today’s Task', pList(L.tasks, m.date)) +
       (d.summary ? pBox('Summary', '<p class="p-text">' + esc(d.summary) + '</p>') : '') + '</div>';
     return '<div class="p-sheet">' + pHead(m, 'Daily Meeting · Today') + P_SLOGAN + sum + '<div class="p-full"><div class="p-grid">' +
-      pBox('Shout Out for Team / Leaders / Students', pList(L.shout)) + pBox('Today’s Appointment', pList(L.appts)) +
-      pBox('Pending / New Issues', pList(L.pending)) + pBox('Today’s Task', pList(L.tasks)) +
+      pBox('Shout Out for Team / Leaders / Students', pList(L.shout, m.date)) + pBox('Today’s Appointment', pList(L.appts, m.date)) +
+      pBox('Pending / New Issues', pList(L.pending, m.date)) + pBox('Today’s Task', pList(L.tasks, m.date)) +
       pBox('Alert Student List', '<span class="p-none">' + (d.alertCount ? d.alertCount + ' student' + (d.alertCount > 1 ? 's' : '') + ' on the list. Names are in Staff Notes only.' : '—') + '</span>') +
-      pBox('Urgency', pList(L.urgent), 'urg') + pBox('KPI: Total Score', '<div class="p-score">' + esc(d.score || '—') + '</div>') +
+      pBox('Urgency', pList(L.urgent, m.date), 'urg') + pBox('KPI: Total Score', '<div class="p-score">' + esc(d.score || '—') + '</div>') +
       '</div>' + (d.summary ? pBox('Summary', '<p class="p-text">' + esc(d.summary) + '</p>') : '') + '</div>' + moreBtn('Today’s Round') + '</div>';
   }
   function moreBtn(what) { return '<button type="button" class="p-more" aria-expanded="false" data-what="' + what + '">Show full ' + what + ' ▾</button>'; }

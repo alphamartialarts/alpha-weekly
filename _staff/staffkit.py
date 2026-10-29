@@ -248,7 +248,7 @@ def _pin_data(m):
     if (datetime.date.today() - datetime.date.fromisoformat(m['date'])).days > 21:
         return None
     if form == 'round':
-        lists = {k: [{'t': x.get('t', ''), 'done': bool(x.get('done'))} for x in (d.get('lists') or {}).get(k, []) if x.get('t')]
+        lists = {k: [dict({'t': x.get('t', ''), 'done': bool(x.get('done'))}, **({'since': x['since']} if x.get('since') else {})) for x in (d.get('lists') or {}).get(k, []) if x.get('t')]
                  for k in ('shout', 'appts', 'pending', 'tasks', 'urgent')}
         return form, {'lists': lists, 'alertCount': len([x for x in (d.get('lists') or {}).get('alert', []) if x.get('t')]),
                       'score': d.get('score', ''), 'summary': d.get('summary', '')}
