@@ -200,6 +200,15 @@ h2::before {
 .why b { display: block; color: var(--ink); font-size: .92rem; }
 .promo-ask { font-weight: 600; font-size: .94rem; }
 .promo-blue { border-color: var(--blue); }
+.promo-bf { border-color: var(--ink); }
+.tripdd { margin-top: 4px; }
+.tripdd summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 8px; background: var(--blue); color: #ffffff; border-radius: 999px; padding: 11px 20px; font: 800 italic 1rem/1 var(--display); text-transform: uppercase; letter-spacing: .04em; }
+.tripdd summary::-webkit-details-marker { display: none; }
+.tripdd summary::after { content: "▾"; font-style: normal; transition: transform .2s; }
+.tripdd[open] summary::after { transform: rotate(180deg); }
+.tripdd summary:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+.tripdd img { display: block; width: 100%; height: auto; margin-top: 12px; border-radius: 8px; border: 1px solid var(--line); }
+.tripnote { display: block; margin-top: 6px; color: var(--muted); font-size: .8rem; font-weight: 700; text-align: center; }
 .cta {
   justify-self: start; display: inline-flex; align-items: center; gap: 8px; margin: 8px 0 4px;
   background: var(--red); color: #ffffff; text-decoration: none; border-radius: 999px; padding: 11px 20px;
@@ -377,6 +386,31 @@ footer .contact span { user-select: all; }
           <div><h3>Black Belt Testing</h3><p>Come support our candidates on their big day.</p></div>
         </div>
       </div>
+
+      <article class="promo promo-bf" data-start="2026-11-02" data-end="2026-12-02">
+        <a class="flyer" href="2026-Black-Friday-Sale.pdf" target="_blank" rel="noopener">
+          <img src="black-friday-2026.jpg" alt="Alpha Martial Arts Black Friday Sale flyer: Alpha Korea Trip June 23 to July 3, 2027, pre-paid memberships 20% off, 2027 camps, and the limited Alpha hoodie. Sale ends December 2." width="1200" height="1553" loading="lazy">
+          <span>Tap to open the flyer (PDF)</span>
+        </a>
+        <div class="promo-body">
+          <span class="tag status promo-status" hidden></span>
+          <p class="promo-when">Now – Dec 2 · Sale ends Dec 2</p>
+          <h3>Black Friday Sale</h3>
+          <p class="promo-sub">Our best prices of the year, for a limited time.</p>
+          <ul class="why">
+            <li><b>Alpha Korea Trip</b>June 23 – July 3, 2027 · $100 off the December deposit</li>
+            <li><b>Pre-paid Membership</b>20% off · 24- &amp; 36-month · limited spots</li>
+            <li><b>2027 Camps</b>Day, Spring &amp; Summer Camps at special prices</li>
+            <li><b>Limited Alpha Hoodie</b>$59.99 · limited edition</li>
+          </ul>
+          <p class="promo-ask"><b>How to order:</b> Pick up an order form at the front desk, fill it out, and hand it back to us.</p>
+          <details class="tripdd">
+            <summary>Korea Trip Schedule</summary>
+            <a href="korea-trip-2027-itinerary.jpg" target="_blank" rel="noopener"><img src="korea-trip-2027-itinerary.jpg" alt="Korea Taekwondo Trip 2027 day-by-day itinerary: Muju Taekwondowon, Busan, Jeju, and Seoul including Kukkiwon and the DMZ." width="1620" height="3569" loading="lazy"></a>
+            <span class="tripnote">Tap the schedule to open it full size.</span>
+          </details>
+        </div>
+      </article>
 
       <article class="promo" data-start="2026-11-01" data-end="2026-12-31">
         <a class="flyer" href="family-training-nov-dec.jpg" target="_blank" rel="noopener">
