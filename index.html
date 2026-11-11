@@ -309,45 +309,7 @@ footer .contact span { user-select: all; }
         <p>Saturday Beginner’s Class and Beast Class will not meet on <b>Nov 7</b> (LEAD Summit) and <b>Nov 14</b> (Black Belt Testing). Beast families: make-up classes are on <b>Monday, Nov 9</b> (Beast Leadership 6:25 – 7:05 PM, Beast Demonstration 7:10 – 7:50 PM). Regular Saturday classes return on <b>Nov 21</b>.</p>
       </div>
 
-      <div class="change" data-until="2026-10-24">
-        <strong>No Saturday Beast or Beginner’s classes · Oct 17 &amp; Oct 24</strong>
-        <p>Saturday Beast Class and Beginner’s Class are cancelled on <b>Oct 17</b> (Silicon Valley Taekwondo Championship) and <b>Oct 24</b> (Kidz Town Hay Day).</p>
-      </div>
-
-      <div class="change makeup" data-until="2026-10-28">
-        <strong>Beast Leadership Make-up Classes · Wednesday, Oct 21 &amp; Oct 28</strong>
-        <p>To make up for the cancelled Saturday classes, we’re adding these classes on <b>both Wednesdays</b>:</p>
-        <ul class="makeup-list">
-          <li><span class="mt">6:30 – 7:10 PM</span><span>Beast Leadership Class</span></li>
-          <li><span class="mt">7:10 – 7:50 PM</span><span>Demonstration Class</span></li>
-        </ul>
-      </div>
-
       <div class="events">
-        <article class="event" data-start="2026-10-24" data-end="2026-10-24">
-          <div class="date"><span class="m">Oct</span><span class="d">24</span><span class="w">Sat</span></div>
-          <div class="body">
-            <div class="tags"><span class="tag status" hidden></span><span class="tag">Community</span></div>
-            <h3>Kidz Town Hay Day</h3>
-            <p class="meta">10:00 AM – 1:00 PM · Downtown Livermore</p>
-            <p>Alpha Martial Arts will be at Kidz Town Hay Day in Downtown Livermore. Come out with your family, stop by, and join the fun. We hope to see lots of Alpha families there!</p>
-            <div class="change">
-              <strong>No Saturday Beast or Beginner’s class</strong>
-              <p>Saturday Beast Class and Beginner’s Class will not meet on Oct 24.</p>
-            </div>
-          </div>
-        </article>
-
-        <article class="event" data-start="2026-10-30" data-end="2026-10-30">
-          <div class="date"><span class="m">Oct</span><span class="d">30</span><span class="w">Fri</span></div>
-          <div class="body">
-            <div class="tags"><span class="tag status" hidden></span><span class="tag">Community</span></div>
-            <h3>Arroyo Seco Trunk or Treat</h3>
-            <p class="meta">5:00 – 7:00 PM · Arroyo Seco</p>
-            <p>Alpha Martial Arts will be at the Arroyo Seco Trunk or Treat. Come trick-or-treat with your family and stop by to say hi!</p>
-          </div>
-        </article>
-
       </div>
     </section>
 
@@ -642,6 +604,7 @@ function refreshDates() {
     tag.className = 'tag status' + (cls ? ' ' + cls : '');
     tag.hidden = false;
     c.classList.toggle('past', t > e);
+    c.hidden = t > e; // finished events drop off on their own
   });
   // Family training promo (Nov–Dec): countdown, "happening now", hide after it ends
   Array.prototype.forEach.call(document.querySelectorAll('.promo[data-start]'), function (p) {
