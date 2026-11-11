@@ -337,10 +337,6 @@ footer .contact span { user-select: all; }
     <section aria-labelledby="h-up">
       <h2 id="h-up">Coming Up</h2>
       <div class="upcoming">
-        <div class="up" data-date="2026-11-07">
-          <div class="when">Nov 7<span>Sat</span></div>
-          <div><h3>Beast Special Leadership Team · LEAD Summit</h3><p>Held at Dae Han Martial Arts. No Saturday Beginner’s or Beast class.</p></div>
-        </div>
         <div class="up" data-date="2026-11-11">
           <div class="when">Nov 11<span>Wed</span></div>
           <div><h3>Veterans Day · We’re Open!</h3><p>It’s a US holiday, but Alpha Martial Arts is open. Classes run on the regular schedule.</p></div>
@@ -636,6 +632,7 @@ function refreshDates() {
     if (!el) { el = document.createElement('span'); el.className = 'count'; u.querySelector('.when').appendChild(el); }
     el.textContent = n > 1 ? 'in ' + n + ' days' : n === 1 ? 'Tomorrow' : n === 0 ? 'Today' : 'Done';
     u.classList.toggle('past', n < 0);
+    u.hidden = n < 0;
   });
 
   // Curriculum cycles. Each cycle has an anchor Monday and the week number on that Monday.
