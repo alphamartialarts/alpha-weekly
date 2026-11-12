@@ -15,6 +15,15 @@ body { margin: 0; }
 .s-badge { display: inline-block; margin-left: 10px; vertical-align: 6px; font: 700 .7rem/1 var(--display); letter-spacing: .14em; text-transform: uppercase; background: #d12028; color: #ffffff; padding: 5px 9px; border-radius: 999px; font-style: normal; }
 .s-out { margin-left: auto; position: relative; z-index: 2; font: 700 .8rem/1 var(--display); text-transform: uppercase; letter-spacing: .08em; padding: 10px 14px; border-radius: 999px; border: 1px solid #ffffff55; background: transparent; color: #ffffff; cursor: pointer; }
 .s-out:focus-visible, .s-btn:focus-visible, .s-day:focus-visible, .s-f button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+.s-chg { border: 2px solid var(--red); background: var(--red-soft); border-radius: 12px; padding: 16px 18px 18px; }
+.s-chg h2 { margin-top: 0; }
+.s-chglist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.s-chglist li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: baseline; background: var(--surface); border-radius: 8px; padding: 9px 12px; font-weight: 600; }
+.s-chglist .tag { font: 700 .66rem/1 var(--display); letter-spacing: .12em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; color: #ffffff; background: var(--blue); }
+.s-chglist .tag.moved { background: var(--red); }
+.s-chglist .tag.cancelled { background: #4a4f5a; }
+.s-chglist .tag.new { background: #1f8a42; }
+.s-chglist .when { grid-column: 2; color: var(--muted); font-size: .8rem; font-weight: 600; }
 .s-note { margin: -6px 0 0; color: var(--muted); font-size: .92rem; }
 .s-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
 .s-calhead { display: flex; align-items: center; gap: 8px; }
@@ -221,6 +230,11 @@ body { margin: 0; }
 
 <main>
   <div class="wrap">
+    <section aria-labelledby="s-h-chg" id="s-chg" class="s-chg" hidden>
+      <h2 id="s-h-chg">Schedule Changes</h2>
+      <ul class="s-chglist" id="s-chglist"></ul>
+    </section>
+
     <section aria-labelledby="s-h-pin" id="s-pin" hidden>
       <h2 id="s-h-pin">Today’s Meeting</h2>
       <div class="p-pins" id="s-pins"></div>
@@ -346,6 +360,17 @@ var STAFF = {{DATA}};
   function dateBlock(s) { var p = parts(s); return '<div class="date"><span class="m">' + MON[p.m] + '</span><span class="d">' + p.d + '</span><span class="w">' + WDE[wd(s)] + '</span></div>'; }
 
   var EV = STAFF.events, CK = STAFF.checklists || {}, TASKS = STAFF.tasks || [];
+  // Schedule change notices (shown until their "until" date)
+  (function () {
+    var t = todayISO(), list = (STAFF.notices || []).filter(function (n) { return (n.until || '') >= t; });
+    if (!list.length) return;
+    var label = { moved: 'Moved', 'new': 'New', cancelled: 'Cancelled', note: 'Notice' };
+    document.getElementById('s-chglist').innerHTML = list.map(function (n) {
+      return '<li><span class="tag ' + esc(n.kind) + '">' + (label[n.kind] || 'Notice') + '</span><span>' + esc(n.text) + '</span>' +
+        (n.posted ? '<span class="when">Posted ' + esc(shortD(n.posted)) + '</span>' : '') + '</li>';
+    }).join('');
+    document.getElementById('s-chg').hidden = false;
+  })();
   var byDate = {};
   EV.forEach(function (e) { (byDate[e.date] = byDate[e.date] || []).push(e); });
   var T = todayISO(), tN = toNum(T);

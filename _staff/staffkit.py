@@ -223,17 +223,73 @@ def build(dump, work, pw):
     memo['tasks'] = {(hk(k) if v is None and not k.startswith('#') else k): v for k, v in memo['tasks'].items()}
     # drop memo entries for things no longer in the Daily
     memo['events'] = {k: v for k, v in memo['events'].items() if k in events}
-    data = {'events': out_ev, 'checklists': checks, 'tasks': out_tasks, 'notes': notes, 'memo': memo}
+    memo['notices'] = schedule_notices(staff_json(prev_plain).get('events') or [], out_ev, memo.get('notices') or [], work)
+    data = {'events': out_ev, 'checklists': checks, 'tasks': out_tasks, 'notes': notes, 'notices': memo['notices'], 'memo': memo}
 
     plain = render(data)
     if staff_json(prev_plain).get('events') == out_ev and staff_json(prev_plain).get('checklists') == checks \
             and staff_json(prev_plain).get('tasks') == out_tasks and staff_json(prev_plain).get('notes', []) == notes \
+            and staff_json(prev_plain).get('notices', []) == memo['notices'] \
             and _strip_data(prev_plain) == _strip_data(plain):
         print('UNCHANGED'); return
     shell = open(os.path.join(HERE, 'login-shell.html'), encoding='utf-8').read()
     shell = shell.replace('{{LOGO}}', _logo()).replace('{{PAYLOAD}}', encrypt(plain, pw))
     open(os.path.join(REPO, 'staff.html'), 'w', encoding='utf-8').write(shell)
     print('CHANGED', len(out_ev), 'events,', len(checks), 'checklist days,', len(out_tasks), 'deadlines')
+
+
+NOTICE_DAYS = 14
+
+
+def _when(e):
+    import datetime
+    d = datetime.date.fromisoformat(e['date'])
+    s = d.strftime('%a %b ') + str(d.day)
+    if e.get('time'):
+        def f(t):
+            h, m = map(int, t.split(':')); return '%d:%02d %s' % ((h % 12) or 12, m, 'AM' if h < 12 else 'PM')
+        s += ', ' + f(e['time']) + (' – ' + f(e['end']) if e.get('end') else '')
+    return s
+
+
+def schedule_notices(prev_ev, new_ev, old_notices, work):
+    """Change notices for the top of the staff page.
+    Compares the events on the current page with the new build: an event whose date or
+    time changed is MOVED, a new one is NEW, one that disappeared is CANCELLED. Past
+    events are ignored. Each notice shows for NOTICE_DAYS days. Extra notices can be
+    added by hand in WORK_DIR/notices.json as [{"text": "...", "until": "YYYY-MM-DD"}]."""
+    import datetime
+    today = datetime.date.today()
+    until = (today + datetime.timedelta(days=NOTICE_DAYS)).isoformat()
+    t = today.isoformat()
+    keep = [n for n in old_notices if n.get('until', '') >= t]
+    seen = {n.get('key') for n in keep}
+    out = []
+    if prev_ev:  # first build ever: nothing to compare with
+        before = {e['id']: e for e in prev_ev}
+        after = {e['id']: e for e in new_ev}
+        for i, e in after.items():
+            b = before.get(i)
+            if b is None:
+                if e['date'] >= t:
+                    out.append({'kind': 'new', 'text': e['title'] + ' · ' + _when(e), 'date': e['date']})
+            elif (b['date'], b.get('time', ''), b.get('end', '')) != (e['date'], e.get('time', ''), e.get('end', '')):
+                if max(b['date'], e['date']) >= t:
+                    out.append({'kind': 'moved', 'text': e['title'] + ' · ' + _when(b) + ' → ' + _when(e), 'date': e['date']})
+        for i, b in before.items():
+            if i not in after and b['date'] >= t:
+                out.append({'kind': 'cancelled', 'text': b['title'] + ' · ' + _when(b), 'date': b['date']})
+    extra = os.path.join(work, 'notices.json')
+    if os.path.exists(extra):
+        for n in json.load(open(extra, encoding='utf-8')):
+            out.append({'kind': n.get('kind', 'note'), 'text': n['text'], 'date': n.get('date', ''), 'until': n.get('until') or until})
+    for n in out:
+        n.setdefault('until', until); n['posted'] = t
+        n['key'] = n['kind'] + '|' + n['text']
+        if n['key'] not in seen:
+            keep.append(n); seen.add(n['key'])
+    keep.sort(key=lambda n: (n['posted'], n.get('date', '')), reverse=True)
+    return keep
 
 
 def _pin_data(m):

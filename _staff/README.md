@@ -41,3 +41,14 @@ page shows the latest notes. Notes are copied as written (not translated).
 - Notes with form `round` (Daily Meeting) show on the staff page only on their own date; form `workbook` (Weekly Staff Meeting) shows for 7 days from its date.
 - Only notes from the last 21 days carry template data. Left out on purpose: Alert Student List names (count only), revenue/expense KPIs, Notes for Owner.
 - Personal (excluded) items are remembered as hashes (`hk()`), so their wording never appears in the page.
+
+## Schedule Changes box (added Nov 12, 2026)
+- `build` compares the events already on the page with the new build. An event whose
+  date or time changed shows as **Moved**, a new one as **New**, one that disappeared as
+  **Cancelled**. Past events are ignored.
+- Notices sit at the top of the page for 14 days (`NOTICE_DAYS`) and are remembered in
+  the encrypted memo, so later builds keep them until they expire.
+- To move an event, change its `date`/`time` in the Daily and keep the same document id,
+  so it shows as Moved (not Cancelled + New).
+- A hand-written notice: put `[{"text": "...", "until": "YYYY-MM-DD"}]` in
+  `WORK_DIR/notices.json` before `build`.
