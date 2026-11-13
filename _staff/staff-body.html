@@ -15,6 +15,8 @@ body { margin: 0; }
 .s-badge { display: inline-block; margin-left: 10px; vertical-align: 6px; font: 700 .7rem/1 var(--display); letter-spacing: .14em; text-transform: uppercase; background: #d12028; color: #ffffff; padding: 5px 9px; border-radius: 999px; font-style: normal; }
 .s-out { margin-left: auto; position: relative; z-index: 2; font: 700 .8rem/1 var(--display); text-transform: uppercase; letter-spacing: .08em; padding: 10px 14px; border-radius: 999px; border: 1px solid #ffffff55; background: transparent; color: #ffffff; cursor: pointer; }
 .s-out:focus-visible, .s-btn:focus-visible, .s-day:focus-visible, .s-f button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+.p-due { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); font-size: .8em; font-weight: 700; white-space: nowrap; }
+.p-due.late { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 .p-who { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--blue-soft); font-size: .8em; font-weight: 700; white-space: nowrap; }
 .s-chg { border: 2px solid var(--red); background: var(--red-soft); border-radius: 12px; padding: 16px 18px 18px; }
 .s-chg h2 { margin-top: 0; }
@@ -386,7 +388,7 @@ var STAFF = {{DATA}};
   function shortD(s) { var p = parts(s); return MON[p.m] + ' ' + p.d; }
   // carried-over items show how many days they have been open ("↻ 2 days overdue")
   function pAge(x, date) { if (!x.since || !date || x.done) return ''; var n = Math.round((Date.parse(date) - Date.parse(x.since)) / 864e5); return n >= 1 ? ' <span class="p-age' + (n >= 3 ? ' late' : '') + '">↻ ' + n + (n === 1 ? ' day' : ' days') + ' overdue</span>' : ''; }
-  function pList(a, date) { return a && a.length ? '<ul class="p-list">' + a.map(function (x) { return '<li class="' + (x.done ? 'done' : '') + '"><span>' + esc(x.t) + (x.who ? ' <span class="p-who">→ ' + esc(x.who) + '</span>' : '') + pAge(x, date) + '</span></li>'; }).join('') + '</ul>' : '<span class="p-none">—</span>'; }
+  function pList(a, date) { return a && a.length ? '<ul class="p-list">' + a.map(function (x) { return '<li class="' + (x.done ? 'done' : '') + '"><span>' + esc(x.t) + (x.who ? ' <span class="p-who">→ ' + esc(x.who) + '</span>' : '') + (x.due ? ' <span class="p-due' + (!x.done && x.due < todayISO() ? ' late' : '') + '">Due ' + esc(shortD(x.due)) + '</span>' : '') + pAge(x, date) + '</span></li>'; }).join('') + '</ul>' : '<span class="p-none">—</span>'; }
   function pBox(title, inner, cls) { return '<div class="p-box"><h5' + (cls ? ' class="' + cls + '"' : '') + '>' + title + '</h5>' + inner + '</div>'; }
   function pTbl(head, rows, cells) {
     if (!rows || !rows.length) return '<span class="p-none">—</span>';
