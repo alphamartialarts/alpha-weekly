@@ -312,6 +312,11 @@ footer .contact span { user-select: all; }
         <p>Saturday Beginner’s Class and Beast Class will not meet on <b>Nov 7</b> (LEAD Summit) and <b>Nov 14</b> (Black Belt Testing). Beast families: make-up classes are on <b>Monday, Nov 9</b> (Beast Leadership 6:25 – 7:05 PM, Beast Demonstration 7:10 – 7:50 PM). Regular Saturday classes return on <b>Nov 21</b>.</p>
       </div>
 
+      <div class="change" data-from="2026-12-07" data-until="2027-01-03">
+        <strong>Winter Break · Dec 23 – Jan 3</strong>
+        <p><b>School is closed Wednesday, Dec 23 through Sunday, Jan 3.</b> Classes resume on <b>Monday, Jan 4</b>. Happy holidays from all of us at Alpha!</p>
+      </div>
+
       <div class="change tg" data-until="2026-11-28">
         <strong>Thanksgiving Week · Nov 23 – 28</strong>
         <p>Monday and Tuesday of Thanksgiving week follow a <b>tentative</b> combined schedule:</p>
@@ -330,11 +335,11 @@ footer .contact span { user-select: all; }
 
     <section aria-labelledby="h-next">
       <h2 id="h-next">Training Focus</h2>
-      <p class="lede">Classes follow an 8-week cycle that ends with review and belt testing. Thanksgiving week (Nov 22–28) is skipped.</p>
+      <p class="lede">Classes follow an 8-week cycle that ends with review and belt testing. Thanksgiving week (Nov 22–28) and Winter Break (Dec 20 – Jan 2) are skipped.</p>
 
       <div class="track">
         <p class="weekstart"><span aria-hidden="true">📅</span><span>Each training week starts on <b>Sunday</b> and runs <b>Sunday – Saturday</b>.</span></p>
-        <p class="skipnote" hidden>Thanksgiving week: no curriculum this week. The cycle continues next week.</p>
+        <p class="skipnote" hidden>Holiday week: no curriculum this week. The cycle continues when classes resume.</p>
         <div class="cycle" id="cycle" data-anchor="2026-10-19" data-anchor-week="1" aria-label="8-week curriculum cycle">
           <div class="wk"><b>Week 1</b><span>One Step Sparring &amp; Sparring</span></div>
           <div class="wk"><b>Week 2</b><span>Hand Technique &amp; Self Defense</span></div>
@@ -375,6 +380,10 @@ footer .contact span { user-select: all; }
         <div class="up" data-date="2026-11-25">
           <div class="when">Nov 25<span>Wed</span></div>
           <div><h3>School Closed · Thanksgiving</h3><p>Closed Wednesday, Nov 25 through Saturday, Nov 28. Regular classes return Monday, Nov 30.</p></div>
+        </div>
+        <div class="up" data-date="2026-12-23" data-end="2027-01-03">
+          <div class="when">Dec 23<span>Wed</span></div>
+          <div><h3>Winter Break · School Closed</h3><p>Closed Wednesday, Dec 23 through Sunday, Jan 3. Classes resume Monday, Jan 4.</p></div>
         </div>
       </div>
 
@@ -641,7 +650,7 @@ function refreshDates() {
   });
   // Notices that expire after a date
   Array.prototype.forEach.call(document.querySelectorAll('[data-until]'), function (n) {
-    n.hidden = t > dayNum(n.dataset.until);
+    n.hidden = t > dayNum(n.dataset.until) || (n.dataset.from ? t < dayNum(n.dataset.from) : false);
   });
   // Finished events move to the bottom
   cards.filter(function (c) { return !c.classList.contains('past'); })
@@ -653,9 +662,10 @@ function refreshDates() {
     var n = dayNum(u.dataset.date) - t;
     var el = u.querySelector('.count');
     if (!el) { el = document.createElement('span'); el.className = 'count'; u.querySelector('.when').appendChild(el); }
-    el.textContent = n > 1 ? 'in ' + n + ' days' : n === 1 ? 'Tomorrow' : n === 0 ? 'Today' : 'Done';
-    u.classList.toggle('past', n < 0);
-    u.hidden = n < 0;
+    var e = u.dataset.end ? dayNum(u.dataset.end) - t : n; // multi-day items run until data-end
+    el.textContent = n > 1 ? 'in ' + n + ' days' : n === 1 ? 'Tomorrow' : n === 0 ? 'Today' : e >= 0 ? 'Now' : 'Done';
+    u.classList.toggle('past', e < 0);
+    u.hidden = e < 0;
   });
 
   // Curriculum cycles. Each cycle has an anchor Monday and the week number on that Monday.
@@ -693,8 +703,8 @@ function refreshDates() {
   });
 }
 
-// Mondays of weeks with no curriculum (Thanksgiving). Curriculum weeks run Sunday–Saturday.
-var SKIP_WEEKS = ['2026-11-23'].map(dayNum);
+// Mondays of weeks with no curriculum (Thanksgiving, Winter Break). Curriculum weeks run Sunday–Saturday.
+var SKIP_WEEKS = ['2026-11-23', '2026-12-21', '2026-12-28'].map(dayNum);
 
 function cycleState(t, anchor, anchorIdx, len) {
   // Sunday belongs to the week that starts that day (Sun–Sat), so map it to the following Monday.
